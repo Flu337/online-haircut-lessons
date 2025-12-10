@@ -10,15 +10,20 @@ import Reviews from "../../components/Reviews";
 import Contacts from "../../components/Contacts";
 import Navigation from "../../components/Navigation";
 import ThemeToggle from "../../components/ThemeToggle";
+import PBtn from "../../components/PBtn";
+
 
 
 function HomePage({ theme, toggleTheme }) {
   return (
     <div className="App">
-      {/* Навигационное меню */}
+
       <Navigation theme={theme} toggleTheme={toggleTheme} />
 
-      {/* Основные секции */}
+      <PBtn />
+
+
+      
       <section id="hero-section" className="hero-section">
         <Hero />
       </section>
@@ -55,7 +60,7 @@ function HomePage({ theme, toggleTheme }) {
         <Contacts />
       </section>
 
-      {/* Плавающая кнопка для быстрого переключения темы */}
+
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
     </div>
   );
