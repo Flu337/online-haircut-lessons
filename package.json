@@ -1,7 +1,7 @@
 {
   "name": "online-haircut-lessons",
   "version": "0.1.0",
-  "homepage": "https://github.com/Flu337/online-haircut-lessons",
+  "homepage": "https://flu337.github.io/online-haircut-lessons",
   "private": true,
   "dependencies": {
     "axios": "^1.13.2",
