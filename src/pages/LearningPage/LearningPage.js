@@ -205,7 +205,7 @@ const courseData = {
         title: "Мужские стрижки",
         lessonsCount: 5,
         lessons: [
-          { id: 1, title: "Классическая мужская стрижка", duration: "25:00", videoId: "m1", provider: "rutube" },
+          { id: 1, title: "Классическая мужская стрижка", duration: "25:00", videoId: "video/86752ce5659eca99f2ec2a9080f6ca15", provider: "rutube" },
           { id: 2, title: "Модные тенденции 2024", duration: "20:00", videoId: "m2", provider: "rutube" },
           { id: 3, title: "Стрижка канадка", duration: "30:00", videoId: "m3", provider: "rutube" },
           { id: 4, title: "Фейд и текстурирование", duration: "35:00", videoId: "m4", provider: "rutube" },

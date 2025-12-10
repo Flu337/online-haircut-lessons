@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/Flu337/online-haircut-lessons/static/css/main.29d47ace.css",
-    "main.js": "/Flu337/online-haircut-lessons/static/js/main.8bc6a035.js",
+    "main.css": "/Flu337/online-haircut-lessons/static/css/main.b16e79a7.css",
+    "main.js": "/Flu337/online-haircut-lessons/static/js/main.2853a4c5.js",
     "index.html": "/Flu337/online-haircut-lessons/index.html",
-    "main.29d47ace.css.map": "/Flu337/online-haircut-lessons/static/css/main.29d47ace.css.map",
-    "main.8bc6a035.js.map": "/Flu337/online-haircut-lessons/static/js/main.8bc6a035.js.map"
+    "main.b16e79a7.css.map": "/Flu337/online-haircut-lessons/static/css/main.b16e79a7.css.map",
+    "main.2853a4c5.js.map": "/Flu337/online-haircut-lessons/static/js/main.2853a4c5.js.map"
   },
   "entrypoints": [
-    "static/css/main.29d47ace.css",
-    "static/js/main.8bc6a035.js"
+    "static/css/main.b16e79a7.css",
+    "static/js/main.2853a4c5.js"
   ]
 }
