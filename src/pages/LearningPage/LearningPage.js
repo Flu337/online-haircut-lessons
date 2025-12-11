@@ -18,7 +18,7 @@ const courseData = {
           {
             id: 1,
             title: "История парикмахерского искусства",
-            videoId: "18bb3eecf44ef16ac42697c24934111",
+            videoId: "b5fa54f8ebf91ebcb1f2bf9142965f21",
             homework: {
               title: "Эволюция стилей",
               description: "Подберите 5 старинных причесок, сравните технику.",
@@ -96,7 +96,7 @@ const courseData = {
           {
             id: 7,
             title: "Уход за инструментами",
-            videoId: "18bb3eecf44ef16ac42697c24934111",
+            videoId: "b5fa54f8ebf91ebcb1f2bf9142965f21",
             homework: {
               title: "Чистка инструментов",
               description: "Запишите пошаговый процесс ухода за инструментами.",
@@ -174,7 +174,7 @@ const courseData = {
           {
             id: 13,
             title: "Финализация стрижки",
-            videoId: "18bb3eecf44ef16ac42697c24934111",
+            videoId: "b5fa54f8ebf91ebcb1f2bf9142965f21",
             homework: {
               title: "Финишная обработка",
               description: "Покажите обработку контуров.",
@@ -258,7 +258,7 @@ const courseData = {
           {
             id: 19,
             title: "Консультация клиента",
-            videoId: "18bb3eecf44ef16ac42697c24934111",
+            videoId: "b5fa54f8ebf91ebcb1f2bf9142965f21",
             homework: {
               title: "Диалог",
               description: "Запишите короткий аудио-диалог консультации.",
@@ -347,7 +347,7 @@ const courseData = {
           {
             id: 4,
             title: "Фейд и текстурирование",
-            videoId: "18bb3eecf44ef16ac42697c24934111",
+            videoId: "b5fa54f8ebf91ebcb1f2bf9142965f21",
             homework: {
               title: "Фейд",
               description: "Фото с разных ракурсов.",
@@ -425,7 +425,7 @@ const courseData = {
           {
             id: 10,
             title: "Асимметричные стрижки",
-            videoId: "18bb3eecf44ef16ac42697c24934111",
+            videoId: "b5fa54f8ebf91ebcb1f2bf9142965f21",
             homework: {
               title: "Асимметрия длинных волос",
               description: "Сделайте фото до/после.",
@@ -519,7 +519,7 @@ const courseData = {
           {
             id: 5,
             title: "Однотонное окрашивание",
-            videoId: "18bb3eecf44ef16ac42697c24934111",
+            videoId: "b5fa54f8ebf91ebcb1f2bf9142965f21",
             homework: {
               title: "Однотон",
               description: "Фото до/после окрашивания.",
