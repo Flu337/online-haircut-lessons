@@ -3,9 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import "./ProfilePage.css";
 
 const initialCourses = [
-  { id: 1, title: "Парикмахерский курс 1", progress: 70, paid: true },
-  { id: 2, title: "Стрижки и укладки", progress: 45, paid: false },
-  { id: 3, title: "Колористика", progress: 100, paid: true },
+  { id: 1, title: "Парикмахерский курс 1", progress: 0, paid: false },
+  { id: 2, title: "Стрижки и укладки", progress: 0, paid: false },
+  { id: 3, title: "Колористика", progress: 0, paid: false },
 ];
 
 const certificates = [
