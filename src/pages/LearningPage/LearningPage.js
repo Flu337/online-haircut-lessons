@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./LearningPage.css";
 
-// Данные курсов с домашними заданиями
 const courseData = {
   1: {
     id: 1,
@@ -296,10 +296,6 @@ const courseData = {
     ]
   },
 
-  /* ─────────────────────────────
-     КУРС 2 и КУРС 3 
-     (тоже полностью пересобранные)
-     ───────────────────────────── */
 
   2: {
     id: 2,
@@ -583,18 +579,16 @@ const LearningPage = () => {
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [isLessonCompleted, setIsLessonCompleted] = useState(false);
-  
-  // Состояния для домашнего задания
+
   const [showHomework, setShowHomework] = useState(false);
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [comment, setComment] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [homeworkStatus, setHomeworkStatus] = useState("not_started"); // not_started, uploaded, graded
+  const [homeworkStatus, setHomeworkStatus] = useState("not_started");
   const [uploadedHomework, setUploadedHomework] = useState(null);
 
-  // Загрузка курса и прогресса
   useEffect(() => {
     const course = courseData[courseId];
     if (!course) {
@@ -604,11 +598,9 @@ const LearningPage = () => {
     
     setCourse(course);
     
-    // Загружаем прогресс из localStorage
     const savedProgress = JSON.parse(localStorage.getItem(`course_progress_${courseId}`)) || {};
     setProgress(savedProgress);
     
-    // Загружаем домашние задания из localStorage
     const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
     if (selectedLesson && savedHomework[selectedLesson.lesson.id]) {
       setUploadedHomework(savedHomework[selectedLesson.lesson.id]);
@@ -616,7 +608,6 @@ const LearningPage = () => {
     }
   }, [courseId, navigate, selectedLesson]);
 
-  // Проверка, доступен ли урок
   const isLessonAvailable = (moduleId, lessonId, lessonIndex) => {
     if (progress[lessonId]?.completed) {
       return true;
@@ -633,7 +624,6 @@ const LearningPage = () => {
     return progress[previousLesson.id]?.completed === true;
   };
 
-  // Отметить урок как пройденный
   const markLessonAsCompleted = (moduleId, lessonId) => {
     const newProgress = {
       ...progress,
@@ -649,7 +639,6 @@ const LearningPage = () => {
     setIsLessonCompleted(true);
   };
 
-  // Открыть урок для просмотра
   const openLesson = (moduleId, lesson) => {
     const module = course.modules.find(m => m.id === moduleId);
     const lessonIndex = module.lessons.findIndex(l => l.id === lesson.id);
@@ -662,14 +651,13 @@ const LearningPage = () => {
     setShowVideoModal(true);
     setIsLessonCompleted(progress[lesson.id]?.completed || false);
     setShowHomework(false);
-    
-    // Сброс состояния домашнего задания
+ 
     setFile(null);
     setFileName("");
     setComment("");
     setUploadProgress(0);
     
-    // Загружаем домашнее задание для этого урока
+
     const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
     if (savedHomework[lesson.id]) {
       setUploadedHomework(savedHomework[lesson.id]);
@@ -680,7 +668,7 @@ const LearningPage = () => {
     }
   };
 
-  // Получить следующий урок
+
   const getNextLesson = () => {
     if (!selectedLesson || !course) return null;
     
@@ -704,7 +692,7 @@ const LearningPage = () => {
     return null;
   };
 
-  // Перейти к следующему уроку
+
   const goToNextLesson = () => {
     if (!isLessonCompleted) {
       return;
@@ -717,7 +705,7 @@ const LearningPage = () => {
       setIsLessonCompleted(progress[nextLesson.lesson.id]?.completed || false);
       setShowHomework(false);
       
-      // Сброс состояния домашнего задания для нового урока
+
       const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
       if (savedHomework[nextLesson.lesson.id]) {
         setUploadedHomework(savedHomework[nextLesson.lesson.id]);
@@ -731,7 +719,6 @@ const LearningPage = () => {
     }
   };
 
-  // Получить URL для RuTube видео
   const getRuTubeEmbedUrl = (videoId) => {
     if (videoId.startsWith('http')) {
       return videoId;
@@ -739,26 +726,23 @@ const LearningPage = () => {
     return `https://rutube.ru/play/embed/${videoId}`;
   };
 
-  // Рассчитать общий прогресс
   const calculateProgress = () => {
     if (!course) return 0;
     const completedLessons = Object.keys(progress).filter(id => progress[id]?.completed).length;
     return course.totalLessons > 0 ? Math.round((completedLessons / course.totalLessons) * 100) : 0;
   };
 
-  // Обработка выбора файла
   const handleFileSelect = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
-    
-    // Проверка размера файла
+
     const maxSize = selectedLesson?.lesson?.homework?.maxFileSize || 10;
     if (selectedFile.size > maxSize * 1024 * 1024) {
       alert(`Файл слишком большой. Максимальный размер: ${maxSize}MB`);
       return;
     }
     
-    // Проверка формата файла
+
     const allowedFormats = selectedLesson?.lesson?.homework?.allowedFormats || [".jpg", ".jpeg", ".png", ".pdf"];
     const fileExtension = selectedFile.name.slice(selectedFile.name.lastIndexOf('.')).toLowerCase();
     
@@ -771,44 +755,35 @@ const LearningPage = () => {
     setFileName(selectedFile.name);
   };
 
-  // Загрузка домашнего задания
   const uploadHomework = async () => {
     if (!file) {
       alert("Пожалуйста, выберите файл для загрузки");
       return;
     }
-    
+
     setIsUploading(true);
     setUploadProgress(0);
-    
-    // Имитация загрузки (в реальном приложении здесь будет запрос к backend)
-    const interval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 95) {
-          clearInterval(interval);
-          return 95;
-        }
-        return prev + 5;
-      });
-    }, 100);
-    
+
     try {
-      // В реальном приложении здесь будет:
-      // const formData = new FormData();
-      // formData.append('file', file);
-      // formData.append('lessonId', selectedLesson.lesson.id);
-      // formData.append('comment', comment);
-      // const response = await fetch('/api/homework/upload', { method: 'POST', body: formData });
+      const formData = new FormData();
+      formData.append('file', file); 
+      formData.append('lessonId', selectedLesson.lesson.id); 
+      formData.append('courseId', courseId);
+      formData.append('comment', comment); 
+
+      const response = await axios.post('/api/homework/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percentCompleted);
+        }
+      });
+
       
-      // Имитация успешной загрузки
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      clearInterval(interval);
-      setUploadProgress(100);
-      
-      // Сохраняем в localStorage
       const homeworkData = {
-        id: Date.now(),
+        id: response.data.homeworkId || Date.now(),
         lessonId: selectedLesson.lesson.id,
         fileName: file.name,
         fileSize: (file.size / (1024 * 1024)).toFixed(2),
@@ -816,30 +791,30 @@ const LearningPage = () => {
         uploadedAt: new Date().toISOString(),
         status: "uploaded"
       };
-      
+
       const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
       savedHomework[selectedLesson.lesson.id] = homeworkData;
       localStorage.setItem(`homework_${courseId}`, JSON.stringify(savedHomework));
-      
+
       setUploadedHomework(homeworkData);
       setHomeworkStatus("uploaded");
       setFile(null);
       setFileName("");
       setComment("");
-      
+
       setTimeout(() => {
         setUploadProgress(0);
         setIsUploading(false);
       }, 1000);
-      
+
     } catch (error) {
-      clearInterval(interval);
       setIsUploading(false);
+      console.error('Upload error:', error);
       alert("Ошибка при загрузке файла. Попробуйте еще раз.");
     }
   };
 
-  // Удалить загруженное домашнее задание
+
   const deleteHomework = () => {
     if (window.confirm("Удалить загруженное домашнее задание?")) {
       const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
