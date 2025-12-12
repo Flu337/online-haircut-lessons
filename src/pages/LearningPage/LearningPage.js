@@ -23,7 +23,7 @@ const courseData = {
               title: "Эволюция стилей",
               description: "Подберите 5 старинных причесок, сравните технику.",
               deadline: "2024-12-20",
-              maxFileSize: 5,
+              maxFileSize: 50,
               allowedFormats: [".pdf", ".jpg"]
             }
           },
@@ -600,13 +600,21 @@ const LearningPage = () => {
     
     const savedProgress = JSON.parse(localStorage.getItem(`course_progress_${courseId}`)) || {};
     setProgress(savedProgress);
-    
-    const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
-    if (selectedLesson && savedHomework[selectedLesson.lesson.id]) {
-      setUploadedHomework(savedHomework[selectedLesson.lesson.id]);
-      setHomeworkStatus("uploaded");
+  }, [courseId, navigate]);
+
+  // Добавляем эффект для обновления статуса домашнего задания при изменении selectedLesson
+  useEffect(() => {
+    if (selectedLesson && selectedLesson.lesson) {
+      const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
+      if (savedHomework[selectedLesson.lesson.id]) {
+        setUploadedHomework(savedHomework[selectedLesson.lesson.id]);
+        setHomeworkStatus("uploaded");
+      } else {
+        setUploadedHomework(null);
+        setHomeworkStatus("not_started");
+      }
     }
-  }, [courseId, navigate, selectedLesson]);
+  }, [selectedLesson, courseId]);
 
   const isLessonAvailable = (moduleId, lessonId, lessonIndex) => {
     if (progress[lessonId]?.completed) {
@@ -647,17 +655,18 @@ const LearningPage = () => {
       return;
     }
     
+    // Сбрасываем все состояния для нового урока
     setSelectedLesson({ moduleId, lesson });
     setShowVideoModal(true);
     setIsLessonCompleted(progress[lesson.id]?.completed || false);
     setShowHomework(false);
- 
     setFile(null);
     setFileName("");
     setComment("");
     setUploadProgress(0);
+    setIsUploading(false);
     
-
+    // Загружаем сохраненное домашнее задание (если есть)
     const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
     if (savedHomework[lesson.id]) {
       setUploadedHomework(savedHomework[lesson.id]);
@@ -667,7 +676,6 @@ const LearningPage = () => {
       setHomeworkStatus("not_started");
     }
   };
-
 
   const getNextLesson = () => {
     if (!selectedLesson || !course) return null;
@@ -692,7 +700,6 @@ const LearningPage = () => {
     return null;
   };
 
-
   const goToNextLesson = () => {
     if (!isLessonCompleted) {
       return;
@@ -701,11 +708,17 @@ const LearningPage = () => {
     const nextLesson = getNextLesson();
     
     if (nextLesson) {
+      // Сбрасываем все состояния для следующего урока
       setSelectedLesson({ moduleId: nextLesson.moduleId, lesson: nextLesson.lesson });
       setIsLessonCompleted(progress[nextLesson.lesson.id]?.completed || false);
       setShowHomework(false);
+      setFile(null);
+      setFileName("");
+      setComment("");
+      setUploadProgress(0);
+      setIsUploading(false);
       
-
+      // Загружаем сохраненное домашнее задание для следующего урока
       const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
       if (savedHomework[nextLesson.lesson.id]) {
         setUploadedHomework(savedHomework[nextLesson.lesson.id]);
@@ -765,25 +778,12 @@ const LearningPage = () => {
     setUploadProgress(0);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file); 
-      formData.append('lessonId', selectedLesson.lesson.id); 
-      formData.append('courseId', courseId);
-      formData.append('comment', comment); 
-
-      const response = await axios.post('/api/homework/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percentCompleted);
-        }
-      });
-
+      // Имитация загрузки на сервер
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
+      // Создаем данные домашнего задания
       const homeworkData = {
-        id: response.data.homeworkId || Date.now(),
+        id: Date.now(),
         lessonId: selectedLesson.lesson.id,
         fileName: file.name,
         fileSize: (file.size / (1024 * 1024)).toFixed(2),
@@ -792,15 +792,18 @@ const LearningPage = () => {
         status: "uploaded"
       };
 
+      // Сохраняем в localStorage
       const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
       savedHomework[selectedLesson.lesson.id] = homeworkData;
       localStorage.setItem(`homework_${courseId}`, JSON.stringify(savedHomework));
 
+      // Обновляем состояние
       setUploadedHomework(homeworkData);
       setHomeworkStatus("uploaded");
       setFile(null);
       setFileName("");
       setComment("");
+      setUploadProgress(100);
 
       setTimeout(() => {
         setUploadProgress(0);
@@ -814,7 +817,6 @@ const LearningPage = () => {
     }
   };
 
-
   const deleteHomework = () => {
     if (window.confirm("Удалить загруженное домашнее задание?")) {
       const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
@@ -823,6 +825,9 @@ const LearningPage = () => {
       
       setUploadedHomework(null);
       setHomeworkStatus("not_started");
+      setFile(null);
+      setFileName("");
+      setComment("");
     }
   };
 
@@ -953,13 +958,15 @@ const LearningPage = () => {
                     {isLessonCompleted ? '✓ Просмотрено' : 'Отметить как просмотренное'}
                   </button>
                   
-                  <button 
-                    onClick={goToNextLesson}
-                    disabled={!isLessonCompleted}
-                    className={`next-lesson-btn ${!isLessonCompleted ? 'disabled' : ''}`}
-                  >
-                    Следующий урок →
-                  </button>
+                  {getNextLesson() && (
+                    <button 
+                      onClick={goToNextLesson}
+                      disabled={!isLessonCompleted}
+                      className={`next-lesson-btn ${!isLessonCompleted ? 'disabled' : ''}`}
+                    >
+                      Следующий урок →
+                    </button>
+                  )}
                 </div>
               </div>
               
@@ -970,7 +977,7 @@ const LearningPage = () => {
                     onClick={() => setShowHomework(!showHomework)}
                     className="homework-toggle-btn"
                   >
-                    {showHomework ? 'Скрыть домашнее задание' : 'Перейти к домашнему заданию'}
+                    {showHomework ? 'Скрыть домашнее задание' : 'Показать домашнее задание'}
                   </button>
                   
                   {showHomework && (
@@ -1067,7 +1074,7 @@ const LearningPage = () => {
                             disabled={!file || isUploading}
                             className="upload-homework-btn"
                           >
-                            {isUploading ? 'Загрузка...' : 'Прикрепить задание'}
+                            {isUploading ? 'Загрузка...' : 'Загрузить домашнее задание'}
                           </button>
                         </div>
                       ) : (
