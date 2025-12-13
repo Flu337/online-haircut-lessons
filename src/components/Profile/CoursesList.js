@@ -1,6 +1,6 @@
 import React from "react";
 import CourseItem from "./CourseItem";
-// Убираем import "./CoursesList.css";
+
 
 const CoursesList = ({ 
   courses, 

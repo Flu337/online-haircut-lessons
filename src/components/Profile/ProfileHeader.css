@@ -1,4 +1,4 @@
-/* ProfileHeader.css */
+
 
 .profile-header {
   display: flex;
@@ -68,7 +68,6 @@
   font-size: 14px;
 }
 
-/* Badge для статуса пользователя */
 .profile-badge {
   display: inline-flex;
   align-items: center;
@@ -82,7 +81,6 @@
   margin-top: var(--spacing-sm);
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
   .profile-header {
     flex-direction: column;
@@ -106,7 +104,7 @@
   }
 }
 
-/* Анимация для аватара */
+
 @keyframes avatarPulse {
   0% {
     box-shadow: var(--shadow-lg);
@@ -123,7 +121,7 @@
   animation: avatarPulse 2s infinite;
 }
 
-/* Тёмная тема */
+
 @media (prefers-color-scheme: dark) {
   .avatar {
     border-color: var(--bg-secondary);

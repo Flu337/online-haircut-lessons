@@ -586,15 +586,13 @@ const LearningPage = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [homeworkStatus, setHomeworkStatus] = useState("not_started");
   const [uploadedHomework, setUploadedHomework] = useState(null);
-  
-  // Новые состояния для защиты видео
+
   const [currentVideoUrl, setCurrentVideoUrl] = useState(null);
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoError, setVideoError] = useState(false);
   
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
-  // Функция для получения защищенного URL видео с бэкенда
   const getProtectedVideoUrl = async (courseId, lessonId) => {
     try {
       const token = localStorage.getItem('authToken');
@@ -611,7 +609,7 @@ const LearningPage = () => {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          timeout: 10000 // 10 секунд таймаут
+          timeout: 10000
         }
       );
 
@@ -623,7 +621,6 @@ const LearningPage = () => {
     } catch (error) {
       console.error('❌ Ошибка получения защищенного видео:', error);
       
-      // Fallback для режима разработки
       if (process.env.NODE_ENV === 'development') {
         console.warn('⚠️ Используем fallback URL для разработки');
         const lesson = courseData[courseId]?.modules
@@ -651,7 +648,6 @@ const LearningPage = () => {
           return false;
         }
         
-        // Дополнительная проверка через бэкенд
         const token = localStorage.getItem('authToken');
         if (token) {
           const response = await axios.get(
@@ -674,7 +670,6 @@ const LearningPage = () => {
         return true;
       } catch (error) {
         console.error('Ошибка проверки доступа:', error);
-        // Fallback на локальную проверку
         const savedCourses = JSON.parse(localStorage.getItem('userCourses')) || [];
         const currentCourse = savedCourses.find(c => c.id === parseInt(courseId));
         return !(!currentCourse || !currentCourse.paid);
@@ -718,7 +713,6 @@ const LearningPage = () => {
       }
     } catch (error) {
       console.error('Ошибка при загрузке прогресса:', error);
-      // Используем локальный прогресс как fallback
     }
   };
 
@@ -787,8 +781,7 @@ const LearningPage = () => {
     setProgress(newProgress);
     localStorage.setItem(`course_progress_${courseId}`, JSON.stringify(newProgress));
     setIsLessonCompleted(true);
-    
-    // Отправляем на сервер
+
     try {
       const token = localStorage.getItem('authToken');
       const user = JSON.parse(localStorage.getItem('user'));
@@ -834,7 +827,6 @@ const LearningPage = () => {
     setVideoError(false);
     setCurrentVideoUrl(null);
 
-    // Загружаем защищенное видео
     try {
       setVideoLoading(true);
       const protectedUrl = await getProtectedVideoUrl(courseId, lesson.id);
@@ -893,7 +885,6 @@ const LearningPage = () => {
       setVideoError(false);
       setCurrentVideoUrl(null);
 
-      // Загружаем защищенное видео для следующего урока
       try {
         setVideoLoading(true);
         const protectedUrl = await getProtectedVideoUrl(courseId, nextLesson.lesson.id);
@@ -955,7 +946,6 @@ const LearningPage = () => {
       const token = localStorage.getItem('authToken');
       const user = JSON.parse(localStorage.getItem('user'));
       
-      // Создаем FormData для отправки файла
       const formData = new FormData();
       formData.append('homeworkFile', file);
       formData.append('lessonId', selectedLesson.lesson.id);
@@ -965,7 +955,6 @@ const LearningPage = () => {
       formData.append('homeworkTitle', selectedLesson.lesson.homework.title);
       formData.append('deadline', selectedLesson.lesson.homework.deadline);
 
-      // Отправляем на бэкенд
       const response = await axios.post(
         `${API_BASE_URL}/homework/upload`,
         formData,
@@ -984,7 +973,6 @@ const LearningPage = () => {
       );
 
       if (response.data.success) {
-        // Создаем данные домашнего задания
         const homeworkData = {
           id: response.data.homeworkId || Date.now(),
           lessonId: selectedLesson.lesson.id,
@@ -1001,7 +989,6 @@ const LearningPage = () => {
         savedHomework[selectedLesson.lesson.id] = homeworkData;
         localStorage.setItem(`homework_${courseId}`, JSON.stringify(savedHomework));
 
-        // Обновляем состояние
         setUploadedHomework(homeworkData);
         setHomeworkStatus("pending_review");
         setFile(null);
@@ -1053,7 +1040,6 @@ const LearningPage = () => {
     try {
       const token = localStorage.getItem('authToken');
       
-      // Отправляем запрос на удаление на сервер
       await axios.delete(
         `${API_BASE_URL}/homework/${courseId}/${selectedLesson.lesson.id}`,
         {
@@ -1063,12 +1049,10 @@ const LearningPage = () => {
         }
       );
 
-      // Удаляем из localStorage
       const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
       delete savedHomework[selectedLesson.lesson.id];
       localStorage.setItem(`homework_${courseId}`, JSON.stringify(savedHomework));
       
-      // Обновляем состояние
       setUploadedHomework(null);
       setHomeworkStatus("not_started");
       setFile(null);
@@ -1079,7 +1063,6 @@ const LearningPage = () => {
     } catch (error) {
       console.error('Delete error:', error);
       
-      // Если сервер недоступен, удаляем только локально
       const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
       delete savedHomework[selectedLesson.lesson.id];
       localStorage.setItem(`homework_${courseId}`, JSON.stringify(savedHomework));
@@ -1232,7 +1215,7 @@ const LearningPage = () => {
                     allowFullScreen
                     className="video-frame"
                     frameBorder="0"
-                    key={currentVideoUrl} // Важно для обновления iframe
+                    key={currentVideoUrl} 
                   />
                 ) : (
                   <div className="video-error">
@@ -1378,7 +1361,7 @@ const LearningPage = () => {
                           </button>
                         </div>
                       ) : (
-                        /* Просмотр загруженного задания */
+                        
                         <div className="uploaded-homework">
                           <div className="uploaded-header">
                             <h5>

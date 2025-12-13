@@ -1,6 +1,5 @@
 import React from "react";
 import CertificateCard from "./CertificateCard";
-// Убираем import "./CertificatesList.css";
 
 const CertificatesList = ({ certificates, onDownloadCertificate }) => {
   if (certificates.length === 0) {

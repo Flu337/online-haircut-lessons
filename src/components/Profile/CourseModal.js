@@ -48,10 +48,10 @@ const CourseModal = ({
         </div>
         
 <div className="modal-actions">
-          <button className="btn btn-primary" onClick={onPurchase}>  {/* Изменено */}
+          <button className="btn btn-primary" onClick={onPurchase}> 
             Оплатить курс
           </button>
-          <button className="btn btn-cancel" onClick={onClose}>  {/* Изменено */}
+          <button className="btn btn-cancel" onClick={onClose}> 
             Отмена
           </button>
         </div>
