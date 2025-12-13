@@ -1,18 +1,60 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom"; 
-import "./ProfilePage.css";
+import "../../styles/ProfileComponents.css"; // Импортируем ОДИН CSS файл
 
+// Импортируем компоненты
+import ProfileHeader from "../../components/Profile/ProfileHeader";
+import CoursesList from "../../components/Profile/CoursesList";
+import CertificatesList from "../../components/Profile/CertificatesList";
+import CourseModal from "../../components/Profile/CourseModal";
+
+// Константы выносим отдельно
 const initialCourses = [
   { id: 1, title: "Парикмахерский курс 1", paid: false },
   { id: 2, title: "Стрижки и укладки", paid: false },
   { id: 3, title: "Колористика", paid: false },
 ];
 
-
 const certificateTemplates = {
   1: "/img/image.png", 
   2: "/img/image.png", 
   3: "/img/image.png",
+};
+
+const courseDetails = {
+  1: {
+    title: "Парикмахерский курс 1",
+    description: "Полный курс по основам парикмахерского искусства. Изучите базовые техники стрижек, укладок и ухода за волосами.",
+    modules: [
+      { name: "Введение в профессию", lessons: 3 },
+      { name: "Инструменты и материалы", lessons: 4 },
+      { name: "Базовые техники стрижек", lessons: 6 },
+      { name: "Укладки и стайлинг", lessons: 5 },
+      { name: "Работа с клиентами", lessons: 3 },
+    ],
+    totalLessons: 21,
+    duration: "4 недели"
+  },
+  2: {
+    title: "Стрижки и укладки",
+    description: "Продвинутый курс по современным техникам стрижек и укладок. Освойте трендовые методы работы.",
+    modules: [
+      { name: "Мужские стрижки", lessons: 5 },
+      { name: "Женские стрижки", lessons: 6 },
+    ],
+    totalLessons: 11,
+    duration: "3 недели"
+  },
+  3: {
+    title: "Колористика",
+    description: "Курс по современной колористике. Научитесь подбирать и смешивать цвета, создавать сложные окрашивания.",
+    modules: [
+      { name: "Основы цветоведения", lessons: 4 },
+      { name: "Техники окрашивания", lessons: 4 },
+    ],
+    totalLessons: 8,
+    duration: "2 недели"
+  }
 };
 
 export default function ProfilePage() {
@@ -27,43 +69,7 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const isMounted = useRef(false);
 
-  const courseDetails = {
-    1: {
-      title: "Парикмахерский курс 1",
-      description: "Полный курс по основам парикмахерского искусства. Изучите базовые техники стрижек, укладок и ухода за волосами.",
-      modules: [
-        { name: "Введение в профессию", lessons: 3 },
-        { name: "Инструменты и материалы", lessons: 4 },
-        { name: "Базовые техники стрижек", lessons: 6 },
-        { name: "Укладки и стайлинг", lessons: 5 },
-        { name: "Работа с клиентами", lessons: 3 },
-      ],
-      totalLessons: 21,
-      duration: "4 недели"
-    },
-    2: {
-      title: "Стрижки и укладки",
-      description: "Продвинутый курс по современным техникам стрижек и укладок. Освойте трендовые методы работы.",
-      modules: [
-        { name: "Мужские стрижки", lessons: 5 },
-        { name: "Женские стрижки", lessons: 6 },
-      ],
-      totalLessons: 11,
-      duration: "3 недели"
-    },
-    3: {
-      title: "Колористика",
-      description: "Курс по современной колористике. Научитесь подбирать и смешивать цвета, создавать сложные окрашивания.",
-      modules: [
-        { name: "Основы цветоведения", lessons: 4 },
-        { name: "Техники окрашивания", lessons: 4 },
-      ],
-      totalLessons: 8,
-      duration: "2 недели"
-    }
-  };
-
-
+  // Логические функции
   const getCourseProgress = useCallback((courseId) => {
     try {
       const progressKey = `course_progress_${courseId}`;
@@ -80,13 +86,11 @@ export default function ProfilePage() {
     }
   }, []);
 
- 
   const checkCourseCompletion = useCallback((courseId) => {
     const progress = getCourseProgress(courseId);
     return progress === 100;
   }, [getCourseProgress]);
 
-  
   const getCourseCompletionDate = useCallback((courseId) => {
     try {
       const progressKey = `course_progress_${courseId}`;
@@ -109,7 +113,6 @@ export default function ProfilePage() {
     }
   }, []);
 
-  
   const generateCertificate = useCallback((courseId) => {
     try {
       const course = courses.find(c => c.id === courseId);
@@ -132,7 +135,6 @@ export default function ProfilePage() {
     }
   }, [courses, getCourseCompletionDate]);
 
-
   const updateCertificates = useCallback(() => {
     try {
       const completedCertificates = [];
@@ -151,7 +153,6 @@ export default function ProfilePage() {
         }
       });
       
-  
       setCertificates(prev => {
         const prevIds = prev.map(c => c.id).sort().join(',');
         const newIds = completedCertificates.map(c => c.id).sort().join(',');
@@ -166,18 +167,16 @@ export default function ProfilePage() {
     }
   }, [courses, getCourseProgress, generateCertificate]);
 
- 
+  // Эффекты
   useEffect(() => {
     if (isMounted.current) return;
     isMounted.current = true;
     
-   
     const savedCourses = localStorage.getItem('userCourses');
     if (savedCourses) {
       try {
         const parsedCourses = JSON.parse(savedCourses);
         setCourses(parsedCourses);
-        
         
         setTimeout(() => {
           updateCertificates();
@@ -188,7 +187,6 @@ export default function ProfilePage() {
     }
   }, []);
 
-  
   useEffect(() => {
     if (!isMounted.current) return;
     
@@ -199,6 +197,7 @@ export default function ProfilePage() {
     return () => clearTimeout(timer);
   }, [courses, updateCertificates]);
 
+  // Обработчики событий
   const openCourseModal = (courseId) => {
     setSelectedCourse(courseId);
     setModalOpen(true);
@@ -218,7 +217,6 @@ export default function ProfilePage() {
       setCourses(updatedCourses);
       localStorage.setItem('userCourses', JSON.stringify(updatedCourses));
       
-
       setTimeout(() => {
         updateCertificates();
       }, 100);
@@ -244,7 +242,6 @@ export default function ProfilePage() {
         return;
       }
       
-   
       navigate(`/learning/${courseId}`);
     } catch (error) {
       console.error('Error starting learning:', error);
@@ -256,258 +253,58 @@ export default function ProfilePage() {
     navigate("/");
   };
 
-
-  const downloadCertificate = useCallback((courseId, courseTitle) => {
+  const downloadCertificate = (courseId, courseTitle) => {
     try {
       const templateUrl = certificateTemplates[courseId] || "/img/image.png";
-      const completionDate = getCourseCompletionDate(courseId);
-
-      const dateStr = completionDate ? 
-        completionDate.toLocaleDateString('ru-RU', { 
-          day: '2-digit', 
-          month: '2-digit', 
-          year: 'numeric' 
-        }).replace(/\./g, '-') : 
-        new Date().toLocaleDateString('ru-RU', {
-          day: '2-digit',
-          month: '2-digit', 
-          year: 'numeric'
-        }).replace(/\./g, '-');
-      
-     
-      const cleanTitle = courseTitle
-        .replace(/\s+/g, '_')
-        .replace(/[^а-яА-Яa-zA-Z0-9_]/g, '')
-        .slice(0, 50);
-      
-    
-      const fileName = `Сертификат_${cleanTitle}_${dateStr}.png`;
-      
-   
       const link = document.createElement('a');
       link.href = templateUrl;
-      link.download = fileName;
-      
-
-      link.onclick = () => {
-        setTimeout(() => {
-          if (link.parentNode) {
-            document.body.removeChild(link);
-          }
-        }, 1000);
-      };
+      link.download = `Сертификат_${courseId}.png`;
       
       document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       
-
-      alert(`✅ Сертификат по курсу "${courseTitle}" скачивается!\n\nФайл: ${fileName}`);
+      alert(`Сертификат по курсу "${courseTitle}" скачан!`);
       
     } catch (error) {
-      console.error('❌ Ошибка при скачивании сертификата:', error);
-      alert('Ошибка при скачивании сертификата');
+      console.error('Ошибка при скачивании:', error);
+      alert('Не удалось скачать сертификат');
     }
-  }, [getCourseCompletionDate]);
+  };
 
   return (
     <div className="profile-page">
-      <div className="profile-header">
-        <img
-          src="/img/{BACC5AFF-C2A9-41A3-B885-9DBF0B6BB2F3}.png"
-          alt="avatar"
-          className="avatar"
-        />
-        <div className="profile-info">
-          <h2 className="username">Кирилл Иванов</h2>
-          <p className="user-email">kirill@example.com</p>
-        </div>
-      </div>
-
-      <div className="courses-card">
-        <div className="section-header">
-          <h3>Мои курсы</h3>
-          <span className="courses-count">
-            {courses.filter(c => c.paid).length} из {courses.length} оплачено
-          </span>
-        </div>
-        
-        {courses.map((course) => {
-          const progress = getCourseProgress(course.id);
-          const isCompleted = checkCourseCompletion(course.id);
-          
-          return (
-            <div key={course.id} className="course-item">
-              <div className="course-info">
-                <span className="course-title">{course.title}</span>
-                <span className={`status ${course.paid ? "paid" : "unpaid"}`}>
-                  {course.paid ? (isCompleted ? "Завершен" : "В процессе") : "Не оплачен"}
-                </span>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress"
-                  style={{ width: `${progress}%` }}
-                ></div>
-                <span className="progress-text">{progress}%</span>
-              </div>
-              <div className="course-actions">
-                {course.paid ? (
-                  <>
-                    <button 
-                      className="start-learning-btn-profile"
-                      onClick={() => startLearning(course.id)}
-                    >
-                      {isCompleted ? 'Повторить курс' : 'Продолжить обучение'}
-                    </button>
-                    
-                    {isCompleted && (
-                      <button 
-                        className="download-certificate-btn-profile"
-                        onClick={() => downloadCertificate(course.id, course.title)}
-                        title="Скачать сертификат"
-                      >
-                        📄 Сертификат
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <button 
-                    className="choose-plan-btn"
-                    onClick={() => openCourseModal(course.id)}
-                  >
-                    Выбрать план
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="certificates-section">
-        <div className="section-header">
-          <h3>Мои сертификаты</h3>
-          <span className="certificates-count">
-            {certificates.length} сертификат{certificates.length !== 1 ? 'а' : ''}
-          </span>
-        </div>
-        
-        {certificates.length === 0 ? (
-          <div className="no-certificates">
-            <div className="certificate-placeholder">
-              <div className="certificate-icon">📜</div>
-              <h4>Пока нет сертификатов</h4>
-              <p>Завершите один из курсов, чтобы получить сертификат</p>
-            </div>
-          </div>
-        ) : (
-          <div className="certificates-grid">
-            {certificates.map((cert) => {
-              const completionDate = new Date(cert.issueDate);
-              
-              return (
-                <div key={cert.id} className="certificate-card">
-                  <div className="certificate-header">
-                    <div className="certificate-icon">📜</div>
-                    <div className="certificate-badge">Завершено</div>
-                  </div>
-                  
-                  <div className="certificate-body">
-                    <h4>{cert.courseTitle}</h4>
-                    <div className="certificate-details">
-                      <div className="detail-item">
-                        <span className="detail-label">Выдан:</span>
-                        <span className="detail-value">
-                          {completionDate.toLocaleDateString('ru-RU', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                          })}
-                        </span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Студент:</span>
-                        <span className="detail-value">{cert.userName}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="detail-label">Прогресс:</span>
-                        <span className="detail-value">{cert.progress}%</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Убрана кнопка "Просмотреть", оставлена только кнопка "Скачать" */}
-                  <div className="certificate-footer">
-                    <button 
-                      className="download-certificate-btn"
-                      onClick={() => downloadCertificate(cert.courseId, cert.courseTitle)}
-                    >
-                      📥 Скачать сертификат
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
+      <ProfileHeader />
+      
+      <CoursesList
+        courses={courses}
+        getCourseProgress={getCourseProgress}
+        checkCourseCompletion={checkCourseCompletion}
+        onStartLearning={startLearning}
+        onDownloadCertificate={downloadCertificate}
+        onOpenModal={openCourseModal}
+      />
+      
+      <CertificatesList
+        certificates={certificates}
+        onDownloadCertificate={downloadCertificate}
+      />
+      
       <div className="logout-section">
-        <button className="logout-btn" onClick={handleLogout}>
+        <button className="btn btn-logout" onClick={handleLogout}>
           <span className="logout-icon">🚪</span>
           Выйти на главную
         </button>
         <p className="logout-hint">Вернуться на главную страницу сайта</p>
       </div>
 
-      {/* Модальное окно курса */}
-      {modalOpen && selectedCourse && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={closeModal}>×</button>
-            
-            <h2>{courseDetails[selectedCourse]?.title}</h2>
-            <p className="course-description">
-              {courseDetails[selectedCourse]?.description}
-            </p>
-            
-            <div className="course-stats">
-              <div className="stat-item">
-                <span className="stat-label">Длительность:</span>
-                <span className="stat-value">{courseDetails[selectedCourse]?.duration}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Уроков:</span>
-                <span className="stat-value">{courseDetails[selectedCourse]?.totalLessons}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Сертификат:</span>
-                <span className="stat-value">✅ Выдается по завершении</span>
-              </div>
-            </div>
-            
-            <div className="modules-section">
-              <h3>Структура курса</h3>
-              <ul className="modules-list">
-                {courseDetails[selectedCourse]?.modules.map((module, index) => (
-                  <li key={index} className="module-item">
-                    <span className="module-name">{module.name}</span>
-                    <span className="module-lessons">{module.lessons} уроков</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div className="modal-actions">
-              <button className="purchase-btn" onClick={purchaseCourse}>
-                Оплатить курс
-              </button>
-              <button className="cancel-btn" onClick={closeModal}>
-                Отмена
-              </button>
-            </div>
-          </div>
-        </div>
+      {modalOpen && (
+        <CourseModal
+          selectedCourse={selectedCourse}
+          courseDetails={courseDetails}
+          onClose={closeModal}
+          onPurchase={purchaseCourse}
+        />
       )}
     </div>
   );

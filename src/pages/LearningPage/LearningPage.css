@@ -1092,3 +1092,55 @@
     gap: 8px;
   }
 }
+
+/* Обновление существующих стилей */
+
+/* В .video-controls добавить: */
+.video-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  z-index: 25; /* Выше чем видео элементы */
+}
+
+/* В .action-buttons добавить: */
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: space-between;
+  position: relative;
+  z-index: 25;
+}
+
+/* Добавить для кнопки следующего урока когда видео защищено */
+.next-lesson-btn.protected {
+  background: linear-gradient(90deg, #4CAF50, #45a049);
+  border: none;
+  color: white;
+  position: relative;
+}
+
+.next-lesson-btn.protected::after {
+  content: '🔒';
+  margin-left: 8px;
+  font-size: 14px;
+}
+
+/* Для мобильных устройств улучшить видимость */
+@media (max-width: 768px) {
+  .video-modal-content {
+    padding: 0;
+  }
+  
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: var(--bg-primary);
+    z-index: 100;
+  }
+  
+  .video-wrapper {
+    margin-top: 0;
+  }
+}
