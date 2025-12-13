@@ -1,4 +1,5 @@
 import React from "react";
+// Убираем import "./CourseItem.css";
 
 const CourseItem = ({ 
   course, 

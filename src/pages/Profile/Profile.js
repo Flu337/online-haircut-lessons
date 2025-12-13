@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import "../../styles/ProfileComponents.css";
 
+// Импортируем компоненты
 import ProfileHeader from "../../components/Profile/ProfileHeader";
 import CoursesList from "../../components/Profile/CoursesList";
 import CertificatesList from "../../components/Profile/CertificatesList";
 import CourseModal from "../../components/Profile/CourseModal";
 
+// Константы
 const initialCourses = [
   { id: 1, title: "Парикмахерский курс 1", paid: false },
   { id: 2, title: "Стрижки и укладки", paid: false },
@@ -47,6 +49,7 @@ const courseDetails = {
   }
 };
 
+// Основной компонент
 export default function ProfilePage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -59,6 +62,7 @@ export default function ProfilePage() {
   
   const navigate = useNavigate();
 
+  // Проверка авторизации при загрузке
   useEffect(() => {
     const savedAuth = localStorage.getItem('isAuthenticated');
     const savedUser = localStorage.getItem('userData');
@@ -69,9 +73,27 @@ export default function ProfilePage() {
         setIsAuthenticated(true);
         setUserData(user);
         
+        // Загружаем курсы пользователя
         const userCourses = localStorage.getItem(`courses_${user.username}`);
         if (userCourses) {
-          setCourses(JSON.parse(userCourses));
+          const parsedCourses = JSON.parse(userCourses);
+          setCourses(parsedCourses);
+          
+          // Обновляем статус завершенных курсов
+          const updatedCourses = parsedCourses.map(course => {
+            const progress = getCourseProgress(course.id);
+            return {
+              ...course,
+              progress: progress,
+              completed: progress === 100
+            };
+          });
+          
+          setCourses(updatedCourses);
+          localStorage.setItem(`courses_${user.username}`, JSON.stringify(updatedCourses));
+          
+          // Загружаем сертификаты
+          loadCertificates(user.username);
         } else {
           setCourses(initialCourses);
         }
@@ -80,8 +102,107 @@ export default function ProfilePage() {
         handleLogout();
       }
     }
+    
+    // Создаем тестового пользователя при первом запуске
+    if (!localStorage.getItem('users')) {
+      localStorage.setItem('users', JSON.stringify([{ username: 'admin', password: 'admin' }]));
+      localStorage.setItem(`courses_admin`, JSON.stringify(initialCourses));
+    }
   }, []);
 
+  // Функция для получения прогресса курса
+  const getCourseProgress = (courseId) => {
+    if (!userData) return 0;
+    
+    try {
+      // Получаем прогресс из localStorage
+      const progressKey = `course_progress_${userData.username}_${courseId}`;
+      const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
+      
+      // Подсчитываем завершенные уроки
+      const completedLessons = Object.values(savedProgress).filter(lesson => lesson.completed).length;
+      
+      // Определяем общее количество уроков для курса
+      let totalLessons = 0;
+      if (courseId === 1) totalLessons = 21;
+      else if (courseId === 2) totalLessons = 11;
+      else if (courseId === 3) totalLessons = 8;
+      
+      const progress = Math.round((completedLessons / totalLessons) * 100);
+      return isNaN(progress) ? 0 : progress;
+    } catch (error) {
+      return 0;
+    }
+  };
+
+  // Функция проверки завершения курса
+  const checkCourseCompletion = (courseId) => {
+    const progress = getCourseProgress(courseId);
+    return progress === 100;
+  };
+
+  // Функция для загрузки сертификатов
+  const loadCertificates = (username = null) => {
+    const user = username || userData?.username;
+    if (!user) return;
+    
+    const certificatesKey = `certificates_${user}`;
+    const savedCertificates = JSON.parse(localStorage.getItem(certificatesKey)) || [];
+    
+    // Если нет сертификатов, проверяем завершенные курсы
+    if (savedCertificates.length === 0 && courses.length > 0) {
+      const completedCertificates = [];
+      
+      courses.forEach(course => {
+        if (course.paid) {
+          const progress = getCourseProgress(course.id);
+          const isCompleted = progress === 100;
+          
+          if (isCompleted) {
+            const certificate = generateCertificate(course.id);
+            if (certificate) {
+              completedCertificates.push(certificate);
+            }
+          }
+        }
+      });
+      
+      setCertificates(completedCertificates);
+    } else {
+      setCertificates(savedCertificates);
+    }
+  };
+
+  // Генерация сертификата
+  const generateCertificate = (courseId) => {
+    if (!userData) return null;
+    
+    try {
+      const course = courses.find(c => c.id === courseId);
+      if (!course) return null;
+      
+      return {
+        id: Date.now(),
+        name: `Сертификат по курсу "${course.title}"`,
+        courseId: courseId,
+        courseTitle: course.title,
+        issueDate: new Date().toISOString(),
+        userName: userData.username,
+        progress: 100
+      };
+    } catch (error) {
+      return null;
+    }
+  };
+
+  // Загружаем сертификаты при изменении курсов
+  useEffect(() => {
+    if (userData && courses.length > 0) {
+      loadCertificates();
+    }
+  }, [courses, userData]);
+
+  // Вход
   const handleLogin = (e) => {
     e.preventDefault();
     setError("");
@@ -90,37 +211,60 @@ export default function ProfilePage() {
     const username = formData.get('username');
     const password = formData.get('password');
     
+    // Простая проверка
     if (!username || !password) {
       setError("Заполните все поля");
       return;
     }
-
+    
+    // Получаем пользователей
     const users = JSON.parse(localStorage.getItem('users') || '[]');
-
+    
+    // Проверяем вход
     const user = users.find(u => u.username === username && u.password === password);
     
     if (user) {
       const userData = { username: user.username };
       
+      // Сохраняем данные
       setIsAuthenticated(true);
       setUserData(userData);
       
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userData', JSON.stringify(userData));
       
+      // Загружаем курсы
       const userCourses = localStorage.getItem(`courses_${user.username}`);
       if (userCourses) {
-        setCourses(JSON.parse(userCourses));
+        const parsedCourses = JSON.parse(userCourses);
+        setCourses(parsedCourses);
+        
+        // Обновляем прогресс
+        const updatedCourses = parsedCourses.map(course => {
+          const progress = getCourseProgress(course.id);
+          return {
+            ...course,
+            progress: progress,
+            completed: progress === 100
+          };
+        });
+        
+        setCourses(updatedCourses);
       } else {
         setCourses(initialCourses);
       }
       
+      // Загружаем сертификаты
+      loadCertificates(user.username);
+      
+      // Очищаем форму
       e.target.reset();
     } else {
       setError("Неверный логин или пароль");
     }
   };
 
+  // Регистрация
   const handleRegister = (e) => {
     e.preventDefault();
     setError("");
@@ -133,31 +277,37 @@ export default function ProfilePage() {
       setError("Заполните все поля");
       return;
     }
-
+    
+    // Получаем пользователей
     const users = JSON.parse(localStorage.getItem('users') || '[]');
-
+    
+    // Проверяем, есть ли уже такой пользователь
     if (users.some(user => user.username === username)) {
       setError("Пользователь с таким логином уже существует");
       return;
     }
-
+    
+    // Добавляем нового пользователя
     const newUser = { username, password };
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
-
+    
+    // Создаем курсы для нового пользователя
     localStorage.setItem(`courses_${username}`, JSON.stringify(initialCourses));
-
+    
+    // Показываем успех
     setError("");
     setAuthMode('login');
     e.target.reset();
     alert("Регистрация успешна! Теперь войдите.");
   };
 
-
+  // Выход
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUserData(null);
     setCourses([]);
+    setCertificates([]);
     
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userData');
@@ -165,29 +315,7 @@ export default function ProfilePage() {
     navigate("/");
   };
 
-
-  const getCourseProgress = (courseId) => {
-    if (!userData) return 0;
-    
-    try {
-      const progressKey = `progress_${userData.username}_${courseId}`;
-      const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
-      
-      const completed = Object.values(savedProgress).filter(lesson => lesson.completed).length;
-      const total = courseDetails[courseId]?.totalLessons || 1;
-      
-      const progress = Math.round((completed / total) * 100);
-      return isNaN(progress) ? 0 : progress;
-    } catch (error) {
-      return 0;
-    }
-  };
-
-  const checkCourseCompletion = (courseId) => {
-    const progress = getCourseProgress(courseId);
-    return progress === 100;
-  };
-
+  // Обработчики для курсов
   const openCourseModal = (courseId) => {
     setSelectedCourse(courseId);
     setModalOpen(true);
@@ -244,6 +372,7 @@ export default function ProfilePage() {
     alert(`Сертификат по курсу "${courseTitle}" скачан!`);
   };
 
+  // Если не авторизован, показываем форму
   if (!isAuthenticated) {
     return (
       <div className="login-page">
@@ -317,6 +446,7 @@ export default function ProfilePage() {
     );
   }
 
+  // Если авторизован, показываем профиль
   return (
     <div className="profile-page">
       <ProfileHeader userName={userData?.username} />

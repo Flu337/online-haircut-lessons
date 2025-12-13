@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import "./LearningPage.css";
 
 const courseData = {
@@ -588,94 +587,8 @@ const LearningPage = () => {
   const [uploadedHomework, setUploadedHomework] = useState(null);
 
   const [currentVideoUrl, setCurrentVideoUrl] = useState(null);
-  const [videoLoading, setVideoLoading] = useState(false);
-  const [videoError, setVideoError] = useState(false);
   
-  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-
-  const getProtectedVideoUrl = async (courseId, lessonId) => {
-    try {
-      const token = localStorage.getItem('authToken');
-      const user = JSON.parse(localStorage.getItem('user'));
-      
-      if (!token || !user) {
-        throw new Error('Требуется авторизация');
-      }
-      
-      const response = await axios.get(
-        `${API_BASE_URL}/video/${courseId}/${lessonId}/video-token`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          timeout: 10000
-        }
-      );
-
-      if (response.data.success && response.data.videoUrl) {
-        return response.data.videoUrl;
-      } else {
-        throw new Error('Не удалось получить защищенное видео');
-      }
-    } catch (error) {
-      console.error('❌ Ошибка получения защищенного видео:', error);
-      
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('⚠️ Используем fallback URL для разработки');
-        const lesson = courseData[courseId]?.modules
-          .flatMap(m => m.lessons)
-          .find(l => l.id === parseInt(lessonId));
-        
-        if (lesson?.videoId) {
-          return `https://rutube.ru/play/embed/${lesson.videoId}`;
-        }
-      }
-      
-      throw error;
-    }
-  };
-
   useEffect(() => {
-    const checkCourseAccess = async () => {
-      try {
-        const savedCourses = JSON.parse(localStorage.getItem('userCourses')) || [];
-        const currentCourse = savedCourses.find(c => c.id === parseInt(courseId));
-        
-        if (!currentCourse || !currentCourse.paid) {
-          alert('Сначала оплатите курс!');
-          navigate("/profile");
-          return false;
-        }
-        
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          const response = await axios.get(
-            `${API_BASE_URL}/courses/${courseId}/access`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`
-              },
-              timeout: 5000
-            }
-          );
-          
-          if (!response.data?.hasAccess) {
-            alert('Доступ к курсу запрещен или истек!');
-            navigate("/profile");
-            return false;
-          }
-        }
-        
-        return true;
-      } catch (error) {
-        console.error('Ошибка проверки доступа:', error);
-        const savedCourses = JSON.parse(localStorage.getItem('userCourses')) || [];
-        const currentCourse = savedCourses.find(c => c.id === parseInt(courseId));
-        return !(!currentCourse || !currentCourse.paid);
-      }
-    };
-
     const course = courseData[courseId];
     if (!course) {
       alert('Курс не найден!');
@@ -683,74 +596,35 @@ const LearningPage = () => {
       return;
     }
 
-    const init = async () => {
-      const hasAccess = await checkCourseAccess();
-      if (!hasAccess) return;
-      
-      setCourse(course);
-      await loadProgressFromServer();
-      
-      const savedProgress = JSON.parse(localStorage.getItem(`course_progress_${courseId}`)) || {};
-      setProgress(savedProgress);
-    };
+    // Проверяем доступ к курсу
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData) {
+      alert('Войдите в систему!');
+      navigate("/");
+      return;
+    }
 
-    init();
+    const userCoursesKey = `courses_${userData.username}`;
+    const savedCourses = JSON.parse(localStorage.getItem(userCoursesKey)) || [];
+    const currentCourse = savedCourses.find(c => c.id === parseInt(courseId));
+    
+    if (!currentCourse || !currentCourse.paid) {
+      alert('Сначала оплатите курс!');
+      navigate("/profile");
+      return;
+    }
+
+    // Загружаем курс
+    setCourse(course);
+    
+    // Загружаем прогресс
+    const progressKey = `course_progress_${userData.username}_${courseId}`;
+    const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
+    setProgress(savedProgress);
+    
+    console.log('Курс загружен:', course.title);
+    console.log('Прогресс загружен:', savedProgress);
   }, [courseId, navigate]);
-
-  const loadProgressFromServer = async () => {
-    try {
-      const token = localStorage.getItem('authToken');
-      const response = await axios.get(`${API_BASE_URL}/courses/${courseId}/progress`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        timeout: 5000
-      });
-      
-      if (response.data.success) {
-        setProgress(response.data.progress);
-        localStorage.setItem(`course_progress_${courseId}`, JSON.stringify(response.data.progress));
-      }
-    } catch (error) {
-      console.error('Ошибка при загрузке прогресса:', error);
-    }
-  };
-
-  const loadHomeworkFromServer = async (lessonId) => {
-    try {
-      const token = localStorage.getItem('authToken');
-      const response = await axios.get(`${API_BASE_URL}/homework/${courseId}/${lessonId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        timeout: 5000
-      });
-      
-      if (response.data.success && response.data.homework) {
-        setUploadedHomework(response.data.homework);
-        setHomeworkStatus(response.data.homework.status || "uploaded");
-      } else {
-        setUploadedHomework(null);
-        setHomeworkStatus("not_started");
-      }
-    } catch (error) {
-      console.error('Ошибка при загрузке домашнего задания:', error);
-      const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
-      if (savedHomework[lessonId]) {
-        setUploadedHomework(savedHomework[lessonId]);
-        setHomeworkStatus("uploaded");
-      } else {
-        setUploadedHomework(null);
-        setHomeworkStatus("not_started");
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (selectedLesson && selectedLesson.lesson) {
-      loadHomeworkFromServer(selectedLesson.lesson.id);
-    }
-  }, [selectedLesson, courseId]);
 
   const isLessonAvailable = (moduleId, lessonId, lessonIndex) => {
     if (progress[lessonId]?.completed) {
@@ -768,7 +642,10 @@ const LearningPage = () => {
     return progress[previousLesson.id]?.completed === true;
   };
 
-  const markLessonAsCompleted = async (moduleId, lessonId) => {
+  const markLessonAsCompleted = (moduleId, lessonId) => {
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData) return;
+    
     const newProgress = {
       ...progress,
       [lessonId]: {
@@ -779,34 +656,73 @@ const LearningPage = () => {
     };
     
     setProgress(newProgress);
-    localStorage.setItem(`course_progress_${courseId}`, JSON.stringify(newProgress));
-    setIsLessonCompleted(true);
-
-    try {
-      const token = localStorage.getItem('authToken');
-      const user = JSON.parse(localStorage.getItem('user'));
+    
+    // Сохраняем прогресс в localStorage
+    const progressKey = `course_progress_${userData.username}_${courseId}`;
+    localStorage.setItem(progressKey, JSON.stringify(newProgress));
+    
+    // Обновляем статус курса в профиле
+    const userCoursesKey = `courses_${userData.username}`;
+    const savedCourses = JSON.parse(localStorage.getItem(userCoursesKey)) || [];
+    
+    if (savedCourses.length > 0) {
+      // Подсчитываем прогресс
+      const completedLessons = Object.values(newProgress).filter(lesson => lesson.completed).length;
+      const totalLessons = course.totalLessons;
       
-      await axios.post(
-        `${API_BASE_URL}/courses/progress`,
-        {
-          courseId,
-          lessonId,
-          completed: true,
-          completedAt: new Date().toISOString(),
-          userId: user?.id || 'unknown'
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      const courseProgress = Math.round((completedLessons / totalLessons) * 100);
+      const isCourseCompleted = courseProgress === 100;
+      
+      // Обновляем курс
+      const updatedCourses = savedCourses.map(c => {
+        if (c.id == courseId) {
+          return {
+            ...c,
+            progress: courseProgress,
+            completed: isCourseCompleted
+          };
         }
-      );
-    } catch (error) {
-      console.error('Ошибка при сохранении прогресса на сервер:', error);
+        return c;
+      });
+      
+      // Сохраняем обновленные курсы
+      localStorage.setItem(userCoursesKey, JSON.stringify(updatedCourses));
+      
+      // Если курс завершен, создаем сертификат
+      if (isCourseCompleted) {
+        const certificate = {
+          id: Date.now(),
+          courseId: courseId,
+          courseTitle: course.title,
+          userName: userData.username,
+          issueDate: new Date().toISOString(),
+          progress: 100
+        };
+        
+        // Сохраняем сертификат
+        const certificatesKey = `certificates_${userData.username}`;
+        const savedCertificates = JSON.parse(localStorage.getItem(certificatesKey)) || [];
+        
+        // Проверяем, нет ли уже сертификата для этого курса
+        if (!savedCertificates.some(c => c.courseId == courseId)) {
+          savedCertificates.push(certificate);
+          localStorage.setItem(certificatesKey, JSON.stringify(savedCertificates));
+        }
+        
+        // Показываем сообщение о завершении курса
+        if (getNextLesson() === null) {
+          setTimeout(() => {
+            alert('🎉 Поздравляем! Вы успешно завершили курс! Сертификат добавлен в ваш профиль.');
+          }, 500);
+        }
+      }
     }
+    
+    setIsLessonCompleted(true);
+    console.log('Урок отмечен как завершенный:', lessonId);
   };
 
-  const openLesson = async (moduleId, lesson) => {
+  const openLesson = (moduleId, lesson) => {
     const module = course.modules.find(m => m.id === moduleId);
     const lessonIndex = module.lessons.findIndex(l => l.id === lesson.id);
     
@@ -824,22 +740,32 @@ const LearningPage = () => {
     setComment("");
     setUploadProgress(0);
     setIsUploading(false);
-    setVideoError(false);
-    setCurrentVideoUrl(null);
-
-    try {
-      setVideoLoading(true);
-      const protectedUrl = await getProtectedVideoUrl(courseId, lesson.id);
-      setCurrentVideoUrl(protectedUrl);
-    } catch (error) {
-      console.error('Ошибка загрузки видео:', error);
-      setVideoError(true);
-      alert('Не удалось загрузить видео. Проверьте доступ к курсу и подключение к интернету.');
-    } finally {
-      setVideoLoading(false);
+    
+    // Устанавливаем URL видео из Rutube
+    if (lesson.videoId) {
+      setCurrentVideoUrl(`https://rutube.ru/play/embed/${lesson.videoId}`);
+    } else {
+      setCurrentVideoUrl(null);
     }
+    
+    // Загружаем домашнее задание
+    loadHomework(lesson.id);
+  };
 
-    loadHomeworkFromServer(lesson.id);
+  const loadHomework = (lessonId) => {
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData) return;
+    
+    const homeworkKey = `homework_${userData.username}_${courseId}_${lessonId}`;
+    const savedHomework = JSON.parse(localStorage.getItem(homeworkKey));
+    
+    if (savedHomework) {
+      setUploadedHomework(savedHomework);
+      setHomeworkStatus(savedHomework.status || "uploaded");
+    } else {
+      setUploadedHomework(null);
+      setHomeworkStatus("not_started");
+    }
   };
 
   const getNextLesson = () => {
@@ -865,7 +791,7 @@ const LearningPage = () => {
     return null;
   };
 
-  const goToNextLesson = async () => {
+  const goToNextLesson = () => {
     if (!isLessonCompleted) {
       alert('Сначала отметьте этот урок как просмотренный!');
       return;
@@ -882,25 +808,18 @@ const LearningPage = () => {
       setComment("");
       setUploadProgress(0);
       setIsUploading(false);
-      setVideoError(false);
-      setCurrentVideoUrl(null);
-
-      try {
-        setVideoLoading(true);
-        const protectedUrl = await getProtectedVideoUrl(courseId, nextLesson.lesson.id);
-        setCurrentVideoUrl(protectedUrl);
-      } catch (error) {
-        console.error('Ошибка загрузки видео:', error);
-        setVideoError(true);
-        alert('Не удалось загрузить видео для следующего урока.');
-      } finally {
-        setVideoLoading(false);
+      
+      // Устанавливаем URL видео для следующего урока
+      if (nextLesson.lesson.videoId) {
+        setCurrentVideoUrl(`https://rutube.ru/play/embed/${nextLesson.lesson.videoId}`);
+      } else {
+        setCurrentVideoUrl(null);
       }
-
-      loadHomeworkFromServer(nextLesson.lesson.id);
+      
+      // Загружаем домашнее задание для следующего урока
+      loadHomework(nextLesson.lesson.id);
     } else {
       setShowVideoModal(false);
-      alert('🎉 Поздравляем! Вы завершили курс!');
     }
   };
 
@@ -933,7 +852,7 @@ const LearningPage = () => {
     setFileName(selectedFile.name);
   };
 
-  const uploadHomework = async () => {
+  const uploadHomework = () => {
     if (!file) {
       alert("Пожалуйста, выберите файл для загрузки");
       return;
@@ -942,116 +861,57 @@ const LearningPage = () => {
     setIsUploading(true);
     setUploadProgress(0);
 
-    try {
-      const token = localStorage.getItem('authToken');
-      const user = JSON.parse(localStorage.getItem('user'));
-      
-      const formData = new FormData();
-      formData.append('homeworkFile', file);
-      formData.append('lessonId', selectedLesson.lesson.id);
-      formData.append('courseId', courseId);
-      formData.append('comment', comment);
-      formData.append('userId', user?.id || 'unknown');
-      formData.append('homeworkTitle', selectedLesson.lesson.homework.title);
-      formData.append('deadline', selectedLesson.lesson.homework.deadline);
+    // Имитация загрузки
+    const interval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          if (userData) {
+            const homeworkData = {
+              id: Date.now(),
+              lessonId: selectedLesson.lesson.id,
+              fileName: file.name,
+              fileSize: (file.size / (1024 * 1024)).toFixed(2),
+              comment: comment,
+              uploadedAt: new Date().toISOString(),
+              status: "pending_review"
+            };
 
-      const response = await axios.post(
-        `${API_BASE_URL}/homework/upload`,
-        formData,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-          },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total || 100)
-            );
-            setUploadProgress(percentCompleted);
+            const homeworkKey = `homework_${userData.username}_${courseId}_${selectedLesson.lesson.id}`;
+            localStorage.setItem(homeworkKey, JSON.stringify(homeworkData));
+
+            setUploadedHomework(homeworkData);
+            setHomeworkStatus("pending_review");
+            setFile(null);
+            setFileName("");
+            setComment("");
+            
+            setTimeout(() => {
+              setIsUploading(false);
+              setUploadProgress(0);
+            }, 1000);
+
+            alert("Домашнее задание успешно загружено!");
           }
+          
+          return 100;
         }
-      );
-
-      if (response.data.success) {
-        const homeworkData = {
-          id: response.data.homeworkId || Date.now(),
-          lessonId: selectedLesson.lesson.id,
-          fileName: file.name,
-          fileSize: (file.size / (1024 * 1024)).toFixed(2),
-          comment: comment,
-          uploadedAt: new Date().toISOString(),
-          status: "pending_review",
-          serverId: response.data.fileId,
-          fileUrl: response.data.fileUrl
-        };
-
-        const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
-        savedHomework[selectedLesson.lesson.id] = homeworkData;
-        localStorage.setItem(`homework_${courseId}`, JSON.stringify(savedHomework));
-
-        setUploadedHomework(homeworkData);
-        setHomeworkStatus("pending_review");
-        setFile(null);
-        setFileName("");
-        setComment("");
-        setUploadProgress(100);
-
-        setTimeout(() => {
-          setUploadProgress(0);
-          setIsUploading(false);
-        }, 1000);
-
-        alert("✅ Домашнее задание успешно загружено!");
-      } else {
-        throw new Error(response.data.message || "Ошибка при загрузке");
-      }
-
-    } catch (error) {
-      setIsUploading(false);
-      console.error('Upload error:', error);
-      
-      if (error.response) {
-        switch (error.response.status) {
-          case 401:
-            alert("❌ Ошибка авторизации. Пожалуйста, войдите снова.");
-            break;
-          case 413:
-            alert("❌ Файл слишком большой. Уменьшите размер файла.");
-            break;
-          case 415:
-            alert("❌ Неподдерживаемый формат файла.");
-            break;
-          default:
-            alert(`❌ Ошибка при загрузке файла: ${error.response.data.message || 'Попробуйте еще раз.'}`);
-        }
-      } else if (error.request) {
-        alert("❌ Не удалось соединиться с сервером. Проверьте подключение к интернету.");
-      } else {
-        alert("❌ Ошибка при загрузке файла. Попробуйте еще раз.");
-      }
-    }
+        return prev + 10;
+      });
+    }, 100);
   };
 
-  const deleteHomework = async () => {
+  const deleteHomework = () => {
     if (!window.confirm("Вы уверены, что хотите удалить загруженное домашнее задание?")) {
       return;
     }
 
-    try {
-      const token = localStorage.getItem('authToken');
-      
-      await axios.delete(
-        `${API_BASE_URL}/homework/${courseId}/${selectedLesson.lesson.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
-      delete savedHomework[selectedLesson.lesson.id];
-      localStorage.setItem(`homework_${courseId}`, JSON.stringify(savedHomework));
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (userData) {
+      const homeworkKey = `homework_${userData.username}_${courseId}_${selectedLesson.lesson.id}`;
+      localStorage.removeItem(homeworkKey);
       
       setUploadedHomework(null);
       setHomeworkStatus("not_started");
@@ -1059,29 +919,15 @@ const LearningPage = () => {
       setFileName("");
       setComment("");
       
-      alert("✅ Домашнее задание удалено!");
-    } catch (error) {
-      console.error('Delete error:', error);
-      
-      const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
-      delete savedHomework[selectedLesson.lesson.id];
-      localStorage.setItem(`homework_${courseId}`, JSON.stringify(savedHomework));
-      
-      setUploadedHomework(null);
-      setHomeworkStatus("not_started");
-      setFile(null);
-      setFileName("");
-      setComment("");
-      
-      alert("✅ Домашнее задание удалено локально. При повторной загрузке оно будет отправлено на сервер.");
+      alert("Домашнее задание удалено!");
     }
   };
 
   const viewHomeworkFile = () => {
-    if (uploadedHomework?.fileUrl) {
-      window.open(uploadedHomework.fileUrl, '_blank');
+    if (uploadedHomework?.fileName) {
+      alert(`Файл: ${uploadedHomework.fileName}\nРазмер: ${uploadedHomework.fileSize} MB`);
     } else {
-      alert("⚠️ Ссылка на файл недоступна");
+      alert("Файл не найден");
     }
   };
 
@@ -1100,16 +946,16 @@ const LearningPage = () => {
           <h1>{course.title}</h1>
           <p className="course-description">{course.description}</p>
           <div className="course-meta">
-            <span className="meta-item">📅 {course.duration}</span>
-            <span className="meta-item">📚 {course.totalLessons} уроков</span>
+            <span className="meta-item">{course.duration}</span>
+            <span className="meta-item"> {course.totalLessons} уроков</span>
           </div>
         </div>
         <div className="course-progress">
           <div className="progress-circle">
             <div className="circle" style={{
               background: `conic-gradient(
-                var(--accent-primary) ${calculateProgress() * 3.6}deg,
-                var(--bg-secondary) 0deg
+                #4cc9f0 ${calculateProgress() * 3.6}deg,
+                #16213e 0deg
               )`
             }}>
               <span>{calculateProgress()}%</span>
@@ -1155,7 +1001,7 @@ const LearningPage = () => {
                         
                         {lesson.homework && (
                           <div className="homework-indicator">
-                            <span className="homework-icon">📝</span>
+                            <span className="homework-icon"></span>
                             <span className="homework-text">Есть домашнее задание</span>
                           </div>
                         )}
@@ -1189,25 +1035,9 @@ const LearningPage = () => {
             </div>
             
             <div className="video-player-container">
-              {/* Видеоплеер с защищенным URL */}
+              {/* Видеоплеер с Rutube */}
               <div className="video-wrapper">
-                {videoLoading ? (
-                  <div className="video-loading">
-                    <div className="spinner"></div>
-                    <p>Загрузка защищенного видео...</p>
-                  </div>
-                ) : videoError ? (
-                  <div className="video-error">
-                    <p>⚠️ Видео недоступно</p>
-                    <p className="error-description">Не удалось загрузить защищенное видео</p>
-                    <button 
-                      onClick={() => openLesson(selectedLesson.moduleId, selectedLesson.lesson)}
-                      className="retry-btn"
-                    >
-                      Попробовать снова
-                    </button>
-                  </div>
-                ) : currentVideoUrl ? (
+                {currentVideoUrl ? (
                   <iframe
                     src={currentVideoUrl}
                     title={selectedLesson.lesson.title}
@@ -1215,17 +1045,12 @@ const LearningPage = () => {
                     allowFullScreen
                     className="video-frame"
                     frameBorder="0"
-                    key={currentVideoUrl} 
                   />
                 ) : (
-                  <div className="video-error">
-                    <p>⚠️ Видео не загружено</p>
-                    <button 
-                      onClick={() => openLesson(selectedLesson.moduleId, selectedLesson.lesson)}
-                      className="retry-btn"
-                    >
-                      Загрузить видео
-                    </button>
+                  <div className="video-placeholder">
+                    <div className="video-icon">🎬</div>
+                    <p>Видео не доступно</p>
+                    <p className="video-hint">Видео материал временно отсутствует</p>
                   </div>
                 )}
               </div>
@@ -1238,7 +1063,7 @@ const LearningPage = () => {
                     disabled={isLessonCompleted}
                     className={`complete-btn ${isLessonCompleted ? 'completed' : ''}`}
                   >
-                    {isLessonCompleted ? '✅ Просмотрено' : '📌 Отметить как просмотренное'}
+                    {isLessonCompleted ? ' Просмотрено' : ' Отметить как просмотренное'}
                   </button>
                   
                   {getNextLesson() && (
@@ -1260,13 +1085,13 @@ const LearningPage = () => {
                     onClick={() => setShowHomework(!showHomework)}
                     className="homework-toggle-btn"
                   >
-                    {showHomework ? '📕 Скрыть домашнее задание' : '📘 Показать домашнее задание'}
+                    {showHomework ? ' Скрыть домашнее задание' : ' Показать домашнее задание'}
                   </button>
                   
                   {showHomework && (
                     <div className="homework-container">
                       <div className="homework-info">
-                        <h4>📝 {selectedLesson.lesson.homework.title}</h4>
+                        <h4> {selectedLesson.lesson.homework.title}</h4>
                         <p className="homework-description">{selectedLesson.lesson.homework.description}</p>
                         
                         <div className="homework-details">
@@ -1397,20 +1222,12 @@ const LearningPage = () => {
                                  "Ожидает проверки"}
                               </span>
                             </div>
-                            {uploadedHomework.feedback && (
-                              <div className="detail-item">
-                                <span className="detail-label">Обратная связь:</span>
-                                <span className="detail-value feedback">{uploadedHomework.feedback}</span>
-                              </div>
-                            )}
                           </div>
                           
                           <div className="uploaded-actions">
-                            {uploadedHomework.fileUrl && (
-                              <button onClick={viewHomeworkFile} className="view-homework-btn">
-                                📄 Просмотреть файл
-                              </button>
-                            )}
+                            <button onClick={viewHomeworkFile} className="view-homework-btn">
+                              📄 Просмотреть файл
+                            </button>
                             <button 
                               onClick={deleteHomework}
                               className="delete-homework-btn"

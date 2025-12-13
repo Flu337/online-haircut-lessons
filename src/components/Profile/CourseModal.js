@@ -31,7 +31,7 @@ const CourseModal = ({
           </div>
           <div className="stat-item">
             <span className="stat-label">Сертификат:</span>
-            <span className="stat-value">✅ Выдается по завершении</span>
+            <span className="stat-value"> Выдается по завершении</span>
           </div>
         </div>
         
@@ -48,7 +48,7 @@ const CourseModal = ({
         </div>
         
 <div className="modal-actions">
-          <button className="btn btn-primary" onClick={onPurchase}> 
+          <button className="btn btn-primary" onClick={onPurchase}>  {/* Изменено */}
             Оплатить курс
           </button>
           <button className="btn btn-cancel" onClick={onClose}> 
