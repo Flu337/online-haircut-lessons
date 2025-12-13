@@ -1,27 +1,30 @@
-/* ProfileComponents.css - Все стили для компонентов профиля с оригинальными цветами */
+/* ProfileComponents.css - Темные цвета как в самом первом файле */
 
-/* ========== ОБЩИЕ СТИЛИ И ЦВЕТА (как в оригинале) ========== */
+/* ========== CSS ПЕРЕМЕННЫЕ (ТЕМНЫЕ) ========== */
 :root {
-  /* Основные цвета из оригинала */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --accent-primary: #4361ee;
-  --accent-secondary: #3a0ca3;
-  --text-primary: #2d3748;
-  --text-secondary: #718096;
-  --border-color: #e2e8f0;
+  /* Темные цвета как в оригинале */
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-card: #0f3460;
+  --bg-light: #1e1e2e;
+  --accent-primary: #4cc9f0;
+  --accent-secondary: #4361ee;
+  --accent-tertiary: #3a0ca3;
+  --text-primary: #e2e8f0;
+  --text-secondary: #a0aec0;
   --success-color: #10b981;
   --warning-color: #f59e0b;
+  --border-color: #2d3748;
   
-  /* Тени как в оригинале */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  /* Тени темные */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
   
   /* Скругления */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
   --radius-xl: 20px;
   
   /* Отступы */
@@ -37,12 +40,13 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: var(--space-lg);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  
+
+  min-height: 100vh;
 }
 
-/* ========== ШАПКА ПРОФИЛЯ (как в оригинале) ========== */
+/* ========== ШАПКА ПРОФИЛЯ ========== */
 .profile-header {
   display: flex;
   align-items: center;
@@ -55,27 +59,31 @@
   border: 1px solid var(--border-color);
 }
 
-.avatar {
+.profile-avatar {
   width: 100px;
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid white;
-  box-shadow: var(--shadow-lg);
+  border: 4px solid var(--accent-primary);
+  box-shadow: 0 0 20px rgba(76, 201, 240, 0.3);
 }
 
 .profile-info {
   flex: 1;
 }
 
-.username {
+.profile-name {
   margin: 0 0 var(--space-xs) 0;
   font-size: 28px;
   font-weight: 700;
   color: var(--text-primary);
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.user-email {
+.profile-email {
   margin: 0;
   color: var(--text-secondary);
   font-size: 16px;
@@ -97,7 +105,7 @@
   align-items: center;
   margin-bottom: var(--space-lg);
   padding-bottom: var(--space-md);
-  border-bottom: 2px solid rgba(67, 97, 238, 0.1);
+  border-bottom: 2px solid rgba(76, 201, 240, 0.3);
 }
 
 .section-header h3 {
@@ -109,25 +117,25 @@
 .courses-count {
   color: var(--accent-primary);
   font-weight: 600;
-  background: rgba(67, 97, 238, 0.1);
+  background: rgba(76, 201, 240, 0.1);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 14px;
 }
 
-/* ========== ОТДЕЛЬНЫЙ КУРС (как в оригинале) ========== */
+/* ========== ОТДЕЛЬНЫЙ КУРС ========== */
 .course-item {
-  background: var(--bg-primary);
+  background: var(--bg-light);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
   margin-bottom: var(--space-md);
-  border: 2px solid rgba(67, 97, 238, 0.1);
-  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .course-item:hover {
-  border-color: rgba(67, 97, 238, 0.3);
-  transform: translateY(-3px);
+  border-color: var(--accent-primary);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
 }
 
@@ -144,99 +152,175 @@
   color: var(--text-primary);
 }
 
-/* Статусы курсов как в оригинале */
-.status {
+/* Статусы в темных тонах */
+.course-status {
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 14px;
   font-weight: 600;
-}
-
-.status.paid {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-}
-
-.status.unpaid {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-
-/* Прогресс бар (как в оригинале) */
-.progress-bar {
-  height: 8px;
-  background: rgba(67, 97, 238, 0.1);
-  border-radius: 4px;
-  margin-bottom: var(--space-md);
-  position: relative;
-  overflow: hidden;
-}
-
-.progress {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-  border-radius: 4px;
-  transition: width 0.5s ease;
-}
-
-.progress-text {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-/* Кнопки курса (как в оригинале) */
-.course-actions {
   display: flex;
-  gap: var(--space-sm);
+  align-items: center;
+  gap: 6px;
 }
 
-.start-learning-btn-profile,
-.choose-plan-btn,
-.download-certificate-btn-profile {
-  padding: 10px 20px;
-  border-radius: var(--radius-md);
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-}
-
-.start-learning-btn-profile {
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-  color: white;
-}
-
-.start-learning-btn-profile:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
-}
-
-.choose-plan-btn {
-  background: rgba(67, 97, 238, 0.1);
-  color: var(--accent-primary);
-}
-
-.choose-plan-btn:hover {
-  background: rgba(67, 97, 238, 0.15);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.download-certificate-btn-profile {
-  background: rgba(16, 185, 129, 0.1);
+.status-paid {
+  background: rgba(16, 185, 129, 0.15);
   color: #10b981;
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.download-certificate-btn-profile:hover {
-  background: rgba(16, 185, 129, 0.15);
+.status-unpaid {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-completed {
+  background: rgba(67, 97, 238, 0.15);
+  color: #4361ee;
+  border: 1px solid rgba(67, 97, 238, 0.3);
+}
+
+/* Прогресс бар темный */
+.progress-bar-container {
+  margin-bottom: var(--space-lg);
+}
+
+.progress-bar {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+  border-radius: 5px;
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    left: 100%;
+  }
+}
+
+.progress-text {
+  position: absolute;
+  right: 0;
+  top: -25px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-primary);
+  background: var(--bg-light);
+  padding: 4px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+/* Кнопки курса темные */
+.course-actions {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.start-learning-btn-profile {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.start-learning-btn-profile:hover {
   transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(76, 201, 240, 0.4);
+}
+
+.start-learning-btn-profile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.start-learning-btn-profile:hover::before {
+  left: 100%;
+}
+
+.choose-plan-btn {
+  padding: 10px 20px;
+  background: rgba(76, 201, 240, 0.1);
+  color: var(--accent-primary);
+  border: 1px solid rgba(76, 201, 240, 0.3);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.choose-plan-btn:hover {
+  background: rgba(76, 201, 240, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(76, 201, 240, 0.2);
+}
+
+.download-certificate-btn-profile {
+  padding: 10px 20px;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.download-certificate-btn-profile:hover {
+  background: rgba(16, 185, 129, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
 }
 
 /* ========== СЕРТИФИКАТЫ ========== */
@@ -256,19 +340,38 @@
   margin-top: var(--space-lg);
 }
 
-/* Карточка сертификата */
+/* Карточка сертификата темная */
 .certificate-card {
-  background: var(--bg-primary);
+  background: var(--bg-light);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
   border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.certificate-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--success-color), #34d399);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
 }
 
 .certificate-card:hover {
-  border-color: rgba(67, 97, 238, 0.3);
+  border-color: rgba(16, 185, 129, 0.5);
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
+}
+
+.certificate-card:hover::before {
+  transform: scaleX(1);
 }
 
 .certificate-header {
@@ -280,50 +383,76 @@
 
 .certificate-icon {
   font-size: 32px;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  background: linear-gradient(135deg, var(--success-color), #34d399);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(16, 185, 129, 0.3));
 }
 
 .certificate-badge {
-  background: linear-gradient(135deg, #10b981, #34d399);
+  background: linear-gradient(135deg, var(--success-color), #34d399);
   color: white;
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.certificate-badge::before {
+  content: '✓';
+  font-size: 14px;
 }
 
 .certificate-body h4 {
   margin: 0 0 var(--space-md) 0;
   font-size: 18px;
+  font-weight: 600;
   color: var(--text-primary);
+  line-height: 1.4;
 }
 
 .certificate-details {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: var(--space-lg);
+  gap: var(--space-sm);
 }
 
 .detail-item {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detail-item:last-child {
+  border-bottom: none;
 }
 
 .detail-label {
+  font-size: 14px;
   color: var(--text-secondary);
-}
-
-.detail-value {
-  color: var(--text-primary);
   font-weight: 500;
 }
 
+.detail-value {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: right;
+  max-width: 60%;
+  word-break: break-word;
+}
+
+.detail-value.progress {
+  color: var(--success-color);
+}
+
 .certificate-footer {
-  text-align: center;
+  margin-top: auto;
 }
 
 .download-certificate-btn {
@@ -333,21 +462,43 @@
   color: white;
   border: none;
   border-radius: var(--radius-md);
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.download-certificate-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
 }
 
 .download-certificate-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+  box-shadow: 0 8px 25px rgba(76, 201, 240, 0.4);
 }
 
-/* Нет сертификатов */
+.download-certificate-btn:hover::before {
+  left: 100%;
+}
+
+/* Нет сертификатов темный */
 .no-certificates {
   text-align: center;
   padding: var(--space-xl);
-  background: var(--bg-secondary);
+  background: var(--bg-light);
   border-radius: var(--radius-lg);
   border: 2px dashed var(--border-color);
 }
@@ -357,22 +508,35 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-md);
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.certificate-placeholder:hover {
+  opacity: 1;
 }
 
 .certificate-placeholder .certificate-icon {
   font-size: 48px;
-  opacity: 0.5;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(76, 201, 240, 0.3));
 }
 
 .certificate-placeholder h4 {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .certificate-placeholder p {
   margin: 0;
   color: var(--text-secondary);
   font-size: 14px;
+  max-width: 300px;
+  line-height: 1.5;
 }
 
 /* ========== МОДАЛЬНОЕ ОКНО КУРСА ========== */
@@ -387,12 +551,12 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(5px);
   padding: var(--space-md);
+  backdrop-filter: blur(5px);
 }
 
 .modal-content {
-  background: var(--bg-primary);
+  background: var(--bg-card);
   border-radius: var(--radius-xl);
   width: 100%;
   max-width: 600px;
@@ -401,24 +565,37 @@
   position: relative;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
+  animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .modal-close {
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 40px;
-  height: 40px;
-  background: var(--bg-secondary);
+  width: 36px;
+  height: 36px;
+  background: var(--bg-light);
   border: none;
   border-radius: 50%;
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
   transition: all 0.3s ease;
+  z-index: 10;
 }
 
 .modal-close:hover {
@@ -433,6 +610,10 @@
   font-size: 24px;
   font-weight: 700;
   color: var(--text-primary);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .course-description {
@@ -444,10 +625,11 @@
 }
 
 .course-stats {
-  display: flex;
-  gap: var(--space-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-md);
   padding: var(--space-lg) var(--space-xl);
-  background: var(--bg-secondary);
+  background: var(--bg-light);
   margin: var(--space-lg) var(--space-xl);
   border-radius: var(--radius-lg);
 }
@@ -465,8 +647,8 @@
 }
 
 .stat-value {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
@@ -478,6 +660,7 @@
 .modules-section h3 {
   margin: 0 0 var(--space-md) 0;
   font-size: 20px;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
@@ -495,9 +678,16 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-md);
-  background: var(--bg-secondary);
+  background: var(--bg-light);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.module-item:hover {
+  transform: translateX(5px);
+  border-color: var(--accent-primary);
+  background: rgba(76, 201, 240, 0.05);
 }
 
 .module-name {
@@ -509,7 +699,7 @@
   font-size: 14px;
   color: var(--accent-primary);
   font-weight: 600;
-  background: rgba(67, 97, 238, 0.1);
+  background: rgba(76, 201, 240, 0.1);
   padding: 4px 12px;
   border-radius: 20px;
 }
@@ -519,14 +709,14 @@
   gap: var(--space-md);
   padding: var(--space-xl);
   border-top: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  background: var(--bg-light);
   border-radius: 0 0 var(--radius-xl) var(--radius-xl);
 }
 
 .purchase-btn {
   flex: 1;
   padding: 16px;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -534,17 +724,34 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.purchase-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
 }
 
 .purchase-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+  box-shadow: 0 8px 25px rgba(76, 201, 240, 0.4);
+}
+
+.purchase-btn:hover::before {
+  left: 100%;
 }
 
 .cancel-btn {
   flex: 1;
   padding: 16px;
-  background: var(--bg-primary);
+  background: var(--bg-card);
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -555,8 +762,9 @@
 }
 
 .cancel-btn:hover {
-  background: var(--bg-secondary);
+  background: var(--bg-light);
   border-color: var(--text-secondary);
+  transform: translateY(-2px);
 }
 
 /* ========== ЛОГАУТ СЕКЦИЯ ========== */
@@ -571,7 +779,7 @@
 
 .logout-btn {
   padding: 12px 24px;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -582,11 +790,28 @@
   align-items: center;
   gap: 10px;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.logout-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
 }
 
 .logout-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+  box-shadow: 0 8px 25px rgba(76, 201, 240, 0.4);
+}
+
+.logout-btn:hover::before {
+  left: 100%;
 }
 
 .logout-hint {
@@ -608,7 +833,7 @@
     gap: var(--space-md);
   }
   
-  .avatar {
+  .profile-avatar {
     width: 80px;
     height: 80px;
   }
@@ -623,6 +848,10 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-sm);
+  }
+  
+  .courses-count {
+    align-self: flex-start;
   }
   
   .course-info {
@@ -648,7 +877,7 @@
   }
   
   .modal-content {
-    padding: 0;
+    padding: var(--space-lg);
   }
   
   .modal-actions {
@@ -660,3 +889,82 @@
     width: 100%;
   }
 }
+
+/* ========== ОБЩИЕ КНОПКИ ========== */
+.btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 8px 25px rgba(76, 201, 240, 0.4);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-secondary {
+  background: rgba(76, 201, 240, 0.1);
+  color: var(--accent-primary);
+  border: 1px solid rgba(76, 201, 240, 0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(76, 201, 240, 0.2);
+  box-shadow: 0 4px 15px rgba(76, 201, 240, 0.2);
+}
+
+.btn-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+  background: rgba(16, 185, 129, 0.2);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+}
+

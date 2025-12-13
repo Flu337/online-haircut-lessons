@@ -1,0 +1,135 @@
+/* ProfileHeader.css */
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(67, 97, 238, 0.05) 100%);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--spacing-xl);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid white;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-xl);
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.username {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.user-email {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.user-email::before {
+  content: '✉️';
+  font-size: 14px;
+}
+
+/* Badge для статуса пользователя */
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: rgba(var(--accent-primary), 0.1);
+  color: var(--accent-primary);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: var(--spacing-sm);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--spacing-lg);
+    gap: var(--spacing-md);
+  }
+  
+  .avatar {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .username {
+    font-size: 24px;
+  }
+  
+  .user-email {
+    font-size: 14px;
+    justify-content: center;
+  }
+}
+
+/* Анимация для аватара */
+@keyframes avatarPulse {
+  0% {
+    box-shadow: var(--shadow-lg);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(67, 97, 238, 0.1);
+  }
+  100% {
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+.avatar.loading {
+  animation: avatarPulse 2s infinite;
+}
+
+/* Тёмная тема */
+@media (prefers-color-scheme: dark) {
+  .avatar {
+    border-color: var(--bg-secondary);
+  }
+  
+  .profile-header {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(67, 97, 238, 0.1) 100%);
+  }
+}

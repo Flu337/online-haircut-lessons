@@ -1,0 +1,260 @@
+/* CourseItem.css */
+
+.course-item {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.course-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--accent-primary), var(--accent-secondary));
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.course-item:hover {
+  border-color: rgba(67, 97, 238, 0.3);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.course-item:hover::before {
+  transform: translateX(0);
+}
+
+.course-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.course-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 200px;
+}
+
+.status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.status::before {
+  content: '•';
+  font-size: 20px;
+}
+
+.status.paid {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.status.paid::before {
+  color: var(--success-color);
+}
+
+.status.unpaid {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+}
+
+.status.unpaid::before {
+  color: var(--warning-color);
+}
+
+.status.completed {
+  background: rgba(67, 97, 238, 0.1);
+  color: var(--accent-primary);
+}
+
+/* Прогресс бар */
+.progress-container {
+  margin-bottom: var(--spacing-lg);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(67, 97, 238, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    left: 100%;
+  }
+}
+
+.progress-text {
+  position: absolute;
+  right: 0;
+  top: -20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-primary);
+  background: var(--bg-primary);
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+/* Кнопки действий */
+.course-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.start-learning-btn-profile,
+.choose-plan-btn,
+.download-certificate-btn-profile {
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.start-learning-btn-profile {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+  flex: 1;
+  min-width: 180px;
+}
+
+.choose-plan-btn {
+  background: rgba(67, 97, 238, 0.1);
+  color: var(--accent-primary);
+  border: 1px solid rgba(67, 97, 238, 0.3);
+  flex: 1;
+  min-width: 140px;
+}
+
+.download-certificate-btn-profile {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.start-learning-btn-profile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+}
+
+.choose-plan-btn:hover {
+  background: rgba(67, 97, 238, 0.15);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.download-certificate-btn-profile:hover {
+  background: rgba(16, 185, 129, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .course-item {
+    padding: var(--spacing-md);
+  }
+  
+  .course-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+  
+  .course-title {
+    min-width: auto;
+  }
+  
+  .course-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .start-learning-btn-profile,
+  .choose-plan-btn,
+  .download-certificate-btn-profile {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+/* Тёмная тема */
+@media (prefers-color-scheme: dark) {
+  .course-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .progress-bar {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .progress-text {
+    background: var(--bg-primary);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}

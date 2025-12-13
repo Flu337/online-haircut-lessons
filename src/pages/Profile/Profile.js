@@ -289,14 +289,14 @@ export default function ProfilePage() {
         certificates={certificates}
         onDownloadCertificate={downloadCertificate}
       />
-      
-      <div className="logout-section">
-        <button className="btn btn-logout" onClick={handleLogout}>
-          <span className="logout-icon">🚪</span>
-          Выйти на главную
-        </button>
-        <p className="logout-hint">Вернуться на главную страницу сайта</p>
-      </div>
+
+<div className="logout-section">
+  <button className="btn btn-primary" onClick={handleLogout}> {/* Изменено */}
+    <span className="logout-icon">🚪</span>
+    Выйти на главную
+  </button>
+  <p className="logout-hint">Вернуться на главную страницу сайта</p>
+</div>
 
       {modalOpen && (
         <CourseModal

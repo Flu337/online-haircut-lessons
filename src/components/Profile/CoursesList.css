@@ -1,0 +1,124 @@
+/* CoursesList.css */
+
+.courses-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid rgba(67, 97, 238, 0.1);
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.section-header h3::before {
+  content: '📚';
+  font-size: 20px;
+}
+
+.courses-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-primary);
+  background: rgba(67, 97, 238, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+/* Состояние без курсов */
+.no-courses {
+  text-align: center;
+  padding: var(--spacing-xl);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--border-color);
+}
+
+.course-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.course-placeholder .course-icon {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
+.course-placeholder h4 {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.course-placeholder p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  max-width: 300px;
+}
+
+/* Анимация появления курсов */
+.courses-list {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .courses-card {
+    padding: var(--spacing-lg);
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+  
+  .courses-count {
+    align-self: flex-start;
+  }
+}
+
+/* Тёмная тема */
+@media (prefers-color-scheme: dark) {
+  .courses-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .no-courses {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}

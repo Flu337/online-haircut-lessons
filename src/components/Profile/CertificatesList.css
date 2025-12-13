@@ -1,0 +1,169 @@
+/* CertificatesList.css */
+
+.certificates-section {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.certificates-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid rgba(16, 185, 129, 0.1);
+}
+
+.certificates-section .section-header h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.certificates-section .section-header h3::before {
+  content: '📜';
+  font-size: 20px;
+}
+
+.certificates-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--success-color);
+  background: rgba(16, 185, 129, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+/* Сетка сертификатов */
+.certificates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--spacing-lg);
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Состояние без сертификатов */
+.no-certificates {
+  text-align: center;
+  padding: var(--spacing-xl);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--border-color);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.certificate-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.certificate-placeholder:hover {
+  opacity: 1;
+}
+
+.certificate-placeholder .certificate-icon {
+  font-size: 48px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(67, 97, 238, 0.2));
+}
+
+.certificate-placeholder h4 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.certificate-placeholder p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+/* Кнопка "К курсам" */
+.go-to-courses-btn {
+  margin-top: var(--spacing-md);
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.go-to-courses-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .certificates-section {
+    padding: var(--spacing-lg);
+  }
+  
+  .certificates-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .certificates-section .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+  
+  .certificates-count {
+    align-self: flex-start;
+  }
+  
+  .no-certificates {
+    padding: var(--spacing-lg);
+  }
+}
+
+/* Тёмная тема */
+@media (prefers-color-scheme: dark) {
+  .certificates-section {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .no-certificates {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}

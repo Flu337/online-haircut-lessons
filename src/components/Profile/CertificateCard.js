@@ -1,5 +1,4 @@
 import React from "react";
-// Убираем import "./CertificateCard.css";
 
 const CertificateCard = ({ certificate, onDownloadCertificate }) => {
   const completionDate = new Date(certificate.issueDate);
@@ -30,17 +29,17 @@ const CertificateCard = ({ certificate, onDownloadCertificate }) => {
           </div>
           <div className="detail-item">
             <span className="detail-label">Прогресс:</span>
-            <span className="detail-value">{certificate.progress}%</span>
+            <span className="detail-value progress">{certificate.progress}%</span>
           </div>
         </div>
       </div>
       
       <div className="certificate-footer">
         <button 
-          className="btn-download"
+          className="download-certificate-btn" // Используем этот класс вместо btn-download
           onClick={() => onDownloadCertificate(certificate.courseId, certificate.courseTitle)}
         >
-          📥 Скачать сертификат
+          <span>📥</span> Скачать сертификат
         </button>
       </div>
     </div>

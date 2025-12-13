@@ -1,5 +1,4 @@
 import React from "react";
-// Убираем import "./CourseModal.css";
 
 const CourseModal = ({ 
   selectedCourse, 
@@ -48,11 +47,11 @@ const CourseModal = ({
           </ul>
         </div>
         
-        <div className="modal-actions">
-          <button className="btn btn-purchase" onClick={onPurchase}>
+<div className="modal-actions">
+          <button className="btn btn-primary" onClick={onPurchase}>  {/* Изменено */}
             Оплатить курс
           </button>
-          <button className="btn btn-cancel" onClick={onClose}>
+          <button className="btn btn-cancel" onClick={onClose}>  {/* Изменено */}
             Отмена
           </button>
         </div>
