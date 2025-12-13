@@ -8,10 +8,10 @@ const initialCourses = [
   { id: 3, title: "Колористика", paid: false },
 ];
 
-// Шаблоны сертификатов для разных курсов
+
 const certificateTemplates = {
-  1: "/img/image.png",  // Используем абсолютный путь от корня public
-  2: "/img/image.png",  // Тот же файл для всех курсов
+  1: "/img/image.png", 
+  2: "/img/image.png", 
   3: "/img/image.png",
 };
 
@@ -63,7 +63,7 @@ export default function ProfilePage() {
     }
   };
 
-  // Функция для получения процента выполнения курса
+
   const getCourseProgress = useCallback((courseId) => {
     try {
       const progressKey = `course_progress_${courseId}`;
@@ -80,13 +80,13 @@ export default function ProfilePage() {
     }
   }, []);
 
-  // Функция для проверки, завершен ли курс
+ 
   const checkCourseCompletion = useCallback((courseId) => {
     const progress = getCourseProgress(courseId);
     return progress === 100;
   }, [getCourseProgress]);
 
-  // Функция для получения даты завершения курса
+  
   const getCourseCompletionDate = useCallback((courseId) => {
     try {
       const progressKey = `course_progress_${courseId}`;
@@ -109,7 +109,7 @@ export default function ProfilePage() {
     }
   }, []);
 
-  // Функция для генерации сертификата
+  
   const generateCertificate = useCallback((courseId) => {
     try {
       const course = courses.find(c => c.id === courseId);
@@ -132,7 +132,7 @@ export default function ProfilePage() {
     }
   }, [courses, getCourseCompletionDate]);
 
-  // Функция для обновления сертификатов
+
   const updateCertificates = useCallback(() => {
     try {
       const completedCertificates = [];
@@ -151,7 +151,7 @@ export default function ProfilePage() {
         }
       });
       
-      // Обновляем состояние только если массив изменился
+  
       setCertificates(prev => {
         const prevIds = prev.map(c => c.id).sort().join(',');
         const newIds = completedCertificates.map(c => c.id).sort().join(',');
@@ -166,19 +166,19 @@ export default function ProfilePage() {
     }
   }, [courses, getCourseProgress, generateCertificate]);
 
-  // Эффект для загрузки данных при монтировании
+ 
   useEffect(() => {
     if (isMounted.current) return;
     isMounted.current = true;
     
-    // Загружаем курсы из localStorage
+   
     const savedCourses = localStorage.getItem('userCourses');
     if (savedCourses) {
       try {
         const parsedCourses = JSON.parse(savedCourses);
         setCourses(parsedCourses);
         
-        // Обновляем сертификаты после загрузки курсов
+        
         setTimeout(() => {
           updateCertificates();
         }, 100);
@@ -188,7 +188,7 @@ export default function ProfilePage() {
     }
   }, []);
 
-  // Эффект для обновления сертификатов при изменении курсов
+  
   useEffect(() => {
     if (!isMounted.current) return;
     
@@ -218,7 +218,7 @@ export default function ProfilePage() {
       setCourses(updatedCourses);
       localStorage.setItem('userCourses', JSON.stringify(updatedCourses));
       
-      // Обновляем сертификаты после покупки
+
       setTimeout(() => {
         updateCertificates();
       }, 100);
@@ -244,7 +244,7 @@ export default function ProfilePage() {
         return;
       }
       
-      // Используем navigate для перехода
+   
       navigate(`/learning/${courseId}`);
     } catch (error) {
       console.error('Error starting learning:', error);
@@ -256,13 +256,12 @@ export default function ProfilePage() {
     navigate("/");
   };
 
-  // Функция для загрузки сертификата
+
   const downloadCertificate = useCallback((courseId, courseTitle) => {
     try {
       const templateUrl = certificateTemplates[courseId] || "/img/image.png";
       const completionDate = getCourseCompletionDate(courseId);
-      
-      // Форматируем дату для имени файла
+
       const dateStr = completionDate ? 
         completionDate.toLocaleDateString('ru-RU', { 
           day: '2-digit', 
@@ -275,21 +274,21 @@ export default function ProfilePage() {
           year: 'numeric'
         }).replace(/\./g, '-');
       
-      // Очищаем название курса для имени файла
+     
       const cleanTitle = courseTitle
         .replace(/\s+/g, '_')
         .replace(/[^а-яА-Яa-zA-Z0-9_]/g, '')
         .slice(0, 50);
       
-      // Формируем имя файла для скачивания
+    
       const fileName = `Сертификат_${cleanTitle}_${dateStr}.png`;
       
-      // Создаем временную ссылку для скачивания
+   
       const link = document.createElement('a');
       link.href = templateUrl;
       link.download = fileName;
       
-      // Добавляем таймер для очистки
+
       link.onclick = () => {
         setTimeout(() => {
           if (link.parentNode) {
@@ -301,7 +300,7 @@ export default function ProfilePage() {
       document.body.appendChild(link);
       link.click();
       
-      // Показываем сообщение пользователю
+
       alert(`✅ Сертификат по курсу "${courseTitle}" скачивается!\n\nФайл: ${fileName}`);
       
     } catch (error) {

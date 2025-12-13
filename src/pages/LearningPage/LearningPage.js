@@ -590,7 +590,6 @@ const LearningPage = () => {
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
   useEffect(() => {
-    // Проверяем, оплачен ли курс
     const checkCourseAccess = () => {
       const savedCourses = JSON.parse(localStorage.getItem('userCourses')) || [];
       const currentCourse = savedCourses.find(c => c.id === parseInt(courseId));
@@ -610,21 +609,18 @@ const LearningPage = () => {
       return;
     }
 
-    // Проверяем доступ к курсу
     if (!checkCourseAccess()) {
       return;
     }
     
     setCourse(course);
     
-    // Загружаем прогресс с сервера
     loadProgressFromServer();
     
     const savedProgress = JSON.parse(localStorage.getItem(`course_progress_${courseId}`)) || {};
     setProgress(savedProgress);
   }, [courseId, navigate]);
 
-  // Загрузка прогресса с сервера
   const loadProgressFromServer = async () => {
     try {
       const token = localStorage.getItem('authToken');
@@ -640,11 +636,9 @@ const LearningPage = () => {
       }
     } catch (error) {
       console.error('Ошибка при загрузке прогресса:', error);
-      // Используем локальный прогресс, если сервер недоступен
     }
   };
 
-  // Загрузка информации о домашнем задании с сервера
   const loadHomeworkFromServer = async (lessonId) => {
     try {
       const token = localStorage.getItem('authToken');
@@ -663,7 +657,6 @@ const LearningPage = () => {
       }
     } catch (error) {
       console.error('Ошибка при загрузке домашнего задания:', error);
-      // Используем локальное сохранение
       const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
       if (savedHomework[lessonId]) {
         setUploadedHomework(savedHomework[lessonId]);
@@ -675,7 +668,6 @@ const LearningPage = () => {
     }
   };
 
-  // Добавляем эффект для обновления статуса домашнего задания при изменении selectedLesson
   useEffect(() => {
     if (selectedLesson && selectedLesson.lesson) {
       loadHomeworkFromServer(selectedLesson.lesson.id);
@@ -745,8 +737,7 @@ const LearningPage = () => {
       alert('Сначала завершите предыдущий урок!');
       return;
     }
-    
-    // Сбрасываем все состояния для нового урока
+ 
     setSelectedLesson({ moduleId, lesson });
     setShowVideoModal(true);
     setIsLessonCompleted(progress[lesson.id]?.completed || false);
@@ -756,8 +747,7 @@ const LearningPage = () => {
     setComment("");
     setUploadProgress(0);
     setIsUploading(false);
-    
-    // Загружаем сохраненное домашнее задание (если есть)
+
     loadHomeworkFromServer(lesson.id);
   };
 
@@ -793,7 +783,7 @@ const LearningPage = () => {
     const nextLesson = getNextLesson();
     
     if (nextLesson) {
-      // Сбрасываем все состояния для следующего урока
+
       setSelectedLesson({ moduleId: nextLesson.moduleId, lesson: nextLesson.lesson });
       setIsLessonCompleted(progress[nextLesson.lesson.id]?.completed || false);
       setShowHomework(false);
@@ -803,7 +793,7 @@ const LearningPage = () => {
       setUploadProgress(0);
       setIsUploading(false);
       
-      // Загружаем сохраненное домашнее задание для следующего урока
+
       loadHomeworkFromServer(nextLesson.lesson.id);
     } else {
       setShowVideoModal(false);
@@ -902,7 +892,6 @@ const LearningPage = () => {
           fileUrl: response.data.fileUrl
         };
 
-        // Сохраняем в localStorage для оффлайн доступа
         const savedHomework = JSON.parse(localStorage.getItem(`homework_${courseId}`)) || {};
         savedHomework[selectedLesson.lesson.id] = homeworkData;
         localStorage.setItem(`homework_${courseId}`, JSON.stringify(savedHomework));
