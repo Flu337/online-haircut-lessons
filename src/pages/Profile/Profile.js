@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom"; 
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom"; 
 import "./ProfilePage.css";
 
 const initialCourses = [
-  { id: 1, title: "Парикмахерский курс 1",  paid: false },
-  { id: 2, title: "Стрижки и укладки",  paid: false },
-  { id: 3, title: "Колористика",  paid: false },
+  { id: 1, title: "Парикмахерский курс 1", paid: false },
+  { id: 2, title: "Стрижки и укладки", paid: false },
+  { id: 3, title: "Колористика", paid: false },
 ];
 
 // Шаблоны сертификатов для разных курсов
 const certificateTemplates = {
-  1: "https://via.placeholder.com/800x600/4CAF50/FFFFFF?text=Сертификат+Парикмахерский+курс+1",
-  2: "https://via.placeholder.com/800x600/2196F3/FFFFFF?text=Сертификат+Стрижки+и+укладки",
-  3: "https://via.placeholder.com/800x600/9C27B0/FFFFFF?text=Сертификат+Колористика"
+  1: "/img/image.png",  // Используем абсолютный путь от корня public
+  2: "/img/image.png",  // Тот же файл для всех курсов
+  3: "/img/image.png",
 };
 
 export default function ProfilePage() {
@@ -25,6 +25,7 @@ export default function ProfilePage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const navigate = useNavigate();
+  const isMounted = useRef(false);
 
   const courseDetails = {
     1: {
@@ -62,129 +63,141 @@ export default function ProfilePage() {
     }
   };
 
-  // Функция для проверки, завершен ли курс
-  const checkCourseCompletion = useCallback((courseId) => {
-    const progressKey = `course_progress_${courseId}`;
-    const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
-    
-    const completedLessons = Object.values(savedProgress).filter(lesson => lesson.completed).length;
-    const totalLessons = courseDetails[courseId]?.totalLessons || 0;
-    
-    return totalLessons > 0 && completedLessons === totalLessons;
-  }, [courseDetails]);
-
   // Функция для получения процента выполнения курса
   const getCourseProgress = useCallback((courseId) => {
-    const progressKey = `course_progress_${courseId}`;
-    const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
-    
-    const completedLessons = Object.values(savedProgress).filter(lesson => lesson.completed).length;
-    const totalLessons = courseDetails[courseId]?.totalLessons || 1;
-    
-    return Math.round((completedLessons / totalLessons) * 100);
-  }, [courseDetails]);
+    try {
+      const progressKey = `course_progress_${courseId}`;
+      const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
+      
+      const completedLessons = Object.values(savedProgress).filter(lesson => lesson.completed).length;
+      const totalLessons = courseDetails[courseId]?.totalLessons || 1;
+      
+      const progress = Math.round((completedLessons / totalLessons) * 100);
+      return isNaN(progress) ? 0 : progress;
+    } catch (error) {
+      console.error('Error getting course progress:', error);
+      return 0;
+    }
+  }, []);
+
+  // Функция для проверки, завершен ли курс
+  const checkCourseCompletion = useCallback((courseId) => {
+    const progress = getCourseProgress(courseId);
+    return progress === 100;
+  }, [getCourseProgress]);
 
   // Функция для получения даты завершения курса
   const getCourseCompletionDate = useCallback((courseId) => {
-    const progressKey = `course_progress_${courseId}`;
-    const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
-    
-    let latestDate = null;
-    Object.values(savedProgress).forEach(lesson => {
-      if (lesson.completedAt) {
-        const lessonDate = new Date(lesson.completedAt);
-        if (!latestDate || lessonDate > latestDate) {
-          latestDate = lessonDate;
-        }
-      }
-    });
-    
-    return latestDate;
-  }, []);
-
-  // Функция для обновления сертификатов
-  const updateCertificates = useCallback(() => {
-    const completedCertificates = [];
-    
-    courses.forEach(course => {
-      if (course.paid) {
-        const progress = getCourseProgress(course.id);
-        const isCompleted = progress === 100;
-        
-        if (isCompleted) {
-          const certificate = generateCertificate(course.id);
-          if (certificate) {
-            completedCertificates.push(certificate);
+    try {
+      const progressKey = `course_progress_${courseId}`;
+      const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
+      
+      let latestDate = null;
+      Object.values(savedProgress).forEach(lesson => {
+        if (lesson.completedAt) {
+          const lessonDate = new Date(lesson.completedAt);
+          if (!latestDate || lessonDate > latestDate) {
+            latestDate = lessonDate;
           }
         }
-      }
-    });
-    
-    setCertificates(completedCertificates);
-  }, [courses, getCourseProgress]);
+      });
+      
+      return latestDate;
+    } catch (error) {
+      console.error('Error getting completion date:', error);
+      return null;
+    }
+  }, []);
 
   // Функция для генерации сертификата
   const generateCertificate = useCallback((courseId) => {
-    const course = courses.find(c => c.id === courseId);
-    if (!course) return null;
-    
-    const completionDate = getCourseCompletionDate(courseId);
-    
-    return {
-      id: courseId,
-      name: `Сертификат по курсу "${course.title}"`,
-      courseId: courseId,
-      courseTitle: course.title,
-      issueDate: completionDate || new Date().toISOString(),
-      userName: "Кирилл Иванов",
-      progress: 100
-    };
+    try {
+      const course = courses.find(c => c.id === courseId);
+      if (!course) return null;
+      
+      const completionDate = getCourseCompletionDate(courseId);
+      
+      return {
+        id: courseId,
+        name: `Сертификат по курсу "${course.title}"`,
+        courseId: courseId,
+        courseTitle: course.title,
+        issueDate: completionDate ? completionDate.toISOString() : new Date().toISOString(),
+        userName: "Кирилл Иванов",
+        progress: 100
+      };
+    } catch (error) {
+      console.error('Error generating certificate:', error);
+      return null;
+    }
   }, [courses, getCourseCompletionDate]);
 
-  // Функция для загрузки сертификата
-  const downloadCertificate = useCallback((courseId, courseTitle) => {
-    const templateUrl = certificateTemplates[courseId] || certificateTemplates[1];
-    const completionDate = getCourseCompletionDate(courseId);
-    const dateStr = completionDate ? completionDate.toLocaleDateString() : new Date().toLocaleDateString();
-    
-    // Создаем временную ссылку для скачивания
-    const link = document.createElement('a');
-    link.href = templateUrl;
-    link.download = `Сертификат_${courseTitle}_${dateStr}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [getCourseCompletionDate]);
+  // Функция для обновления сертификатов
+  const updateCertificates = useCallback(() => {
+    try {
+      const completedCertificates = [];
+      
+      courses.forEach(course => {
+        if (course.paid) {
+          const progress = getCourseProgress(course.id);
+          const isCompleted = progress === 100;
+          
+          if (isCompleted) {
+            const certificate = generateCertificate(course.id);
+            if (certificate) {
+              completedCertificates.push(certificate);
+            }
+          }
+        }
+      });
+      
+      // Обновляем состояние только если массив изменился
+      setCertificates(prev => {
+        const prevIds = prev.map(c => c.id).sort().join(',');
+        const newIds = completedCertificates.map(c => c.id).sort().join(',');
+        
+        if (prevIds !== newIds) {
+          return completedCertificates;
+        }
+        return prev;
+      });
+    } catch (error) {
+      console.error('Error updating certificates:', error);
+    }
+  }, [courses, getCourseProgress, generateCertificate]);
 
-  // Обновляем при загрузке и при изменении localStorage
+  // Эффект для загрузки данных при монтировании
   useEffect(() => {
+    if (isMounted.current) return;
+    isMounted.current = true;
+    
+    // Загружаем курсы из localStorage
     const savedCourses = localStorage.getItem('userCourses');
     if (savedCourses) {
-      setCourses(JSON.parse(savedCourses));
-    }
-    
-    updateCertificates();
-    
-    // Слушаем изменения в localStorage
-    const handleStorageChange = () => {
-      const savedCourses = localStorage.getItem('userCourses');
-      if (savedCourses) {
-        setCourses(JSON.parse(savedCourses));
+      try {
+        const parsedCourses = JSON.parse(savedCourses);
+        setCourses(parsedCourses);
+        
+        // Обновляем сертификаты после загрузки курсов
+        setTimeout(() => {
+          updateCertificates();
+        }, 100);
+      } catch (error) {
+        console.error('Error parsing courses:', error);
       }
+    }
+  }, []);
+
+  // Эффект для обновления сертификатов при изменении курсов
+  useEffect(() => {
+    if (!isMounted.current) return;
+    
+    const timer = setTimeout(() => {
       updateCertificates();
-    };
+    }, 500);
     
-    // Добавляем обработчик события storage
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Также проверяем каждые 2 секунды (для обновления в той же вкладке)
-    const interval = setInterval(updateCertificates, 2000);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
-    };
-  }, [updateCertificates]);
+    return () => clearTimeout(timer);
+  }, [courses, updateCertificates]);
 
   const openCourseModal = (courseId) => {
     setSelectedCourse(courseId);
@@ -197,29 +210,111 @@ export default function ProfilePage() {
   };
 
   const purchaseCourse = () => {
-    const updatedCourses = courses.map(course => 
-      course.id === selectedCourse ? { ...course, paid: true } : course
-    );
-    
-    setCourses(updatedCourses);
-    localStorage.setItem('userCourses', JSON.stringify(updatedCourses));
-    updateCertificates(); // Обновляем сертификаты после покупки
-    closeModal();
+    try {
+      const updatedCourses = courses.map(course => 
+        course.id === selectedCourse ? { ...course, paid: true } : course
+      );
+      
+      setCourses(updatedCourses);
+      localStorage.setItem('userCourses', JSON.stringify(updatedCourses));
+      
+      // Обновляем сертификаты после покупки
+      setTimeout(() => {
+        updateCertificates();
+      }, 100);
+      
+      closeModal();
+    } catch (error) {
+      console.error('Error purchasing course:', error);
+      alert('Ошибка при покупке курса. Попробуйте еще раз.');
+    }
   };
 
   const startLearning = (courseId) => {
-    navigate(`/learning/${courseId}`);
+    try {
+      const course = courses.find(c => c.id === courseId);
+      if (!course) {
+        alert('Курс не найден');
+        return;
+      }
+      
+      if (!course.paid) {
+        alert('Сначала оплатите курс!');
+        openCourseModal(courseId);
+        return;
+      }
+      
+      // Используем navigate для перехода
+      navigate(`/learning/${courseId}`);
+    } catch (error) {
+      console.error('Error starting learning:', error);
+      alert('Ошибка при переходе к обучению');
+    }
   };
 
   const handleLogout = () => {
     navigate("/");
   };
 
+  // Функция для загрузки сертификата
+  const downloadCertificate = useCallback((courseId, courseTitle) => {
+    try {
+      const templateUrl = certificateTemplates[courseId] || "/img/image.png";
+      const completionDate = getCourseCompletionDate(courseId);
+      
+      // Форматируем дату для имени файла
+      const dateStr = completionDate ? 
+        completionDate.toLocaleDateString('ru-RU', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric' 
+        }).replace(/\./g, '-') : 
+        new Date().toLocaleDateString('ru-RU', {
+          day: '2-digit',
+          month: '2-digit', 
+          year: 'numeric'
+        }).replace(/\./g, '-');
+      
+      // Очищаем название курса для имени файла
+      const cleanTitle = courseTitle
+        .replace(/\s+/g, '_')
+        .replace(/[^а-яА-Яa-zA-Z0-9_]/g, '')
+        .slice(0, 50);
+      
+      // Формируем имя файла для скачивания
+      const fileName = `Сертификат_${cleanTitle}_${dateStr}.png`;
+      
+      // Создаем временную ссылку для скачивания
+      const link = document.createElement('a');
+      link.href = templateUrl;
+      link.download = fileName;
+      
+      // Добавляем таймер для очистки
+      link.onclick = () => {
+        setTimeout(() => {
+          if (link.parentNode) {
+            document.body.removeChild(link);
+          }
+        }, 1000);
+      };
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      // Показываем сообщение пользователю
+      alert(`✅ Сертификат по курсу "${courseTitle}" скачивается!\n\nФайл: ${fileName}`);
+      
+    } catch (error) {
+      console.error('❌ Ошибка при скачивании сертификата:', error);
+      alert('Ошибка при скачивании сертификата');
+    }
+  }, [getCourseCompletionDate]);
+
   return (
     <div className="profile-page">
       <div className="profile-header">
         <img
-          src="../../img/{BACC5AFF-C2A9-41A3-B885-9DBF0B6BB2F3}.png"
+          src="/img/{BACC5AFF-C2A9-41A3-B885-9DBF0B6BB2F3}.png"
           alt="avatar"
           className="avatar"
         />
@@ -244,7 +339,7 @@ export default function ProfilePage() {
           return (
             <div key={course.id} className="course-item">
               <div className="course-info">
-                <span>{course.title}</span>
+                <span className="course-title">{course.title}</span>
                 <span className={`status ${course.paid ? "paid" : "unpaid"}`}>
                   {course.paid ? (isCompleted ? "Завершен" : "В процессе") : "Не оплачен"}
                 </span>
@@ -342,18 +437,13 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   
+                  {/* Убрана кнопка "Просмотреть", оставлена только кнопка "Скачать" */}
                   <div className="certificate-footer">
-                    <button 
-                      className="view-certificate-btn"
-                      onClick={() => window.open(certificateTemplates[cert.courseId], '_blank')}
-                    >
-                      👁️ Просмотреть
-                    </button>
                     <button 
                       className="download-certificate-btn"
                       onClick={() => downloadCertificate(cert.courseId, cert.courseTitle)}
                     >
-                      📥 Скачать
+                      📥 Скачать сертификат
                     </button>
                   </div>
                 </div>
