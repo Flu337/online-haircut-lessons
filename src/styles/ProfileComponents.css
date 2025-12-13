@@ -221,18 +221,7 @@
   }
 }
 
-.progress-text {
-  position: absolute;
-  right: 0;
-  top: -25px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--accent-primary);
-  background: var(--bg-light);
-  padding: 4px 8px;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-}
+
 
 /* Кнопки курса темные */
 .course-actions {
