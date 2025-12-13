@@ -1,23 +1,22 @@
 # API Documentation
 
-## Аутентификация
-- `POST /api/auth/register` - регистрация
-- `POST /api/auth/login` - вход
+## 1. Аутентификация
+- `POST /api/auth/login` - вход в систему
 - `GET /api/auth/verify` - проверка токена
 
-## Пользователи
-- `GET /api/users/profile` - профиль
+## 2. Пользователи
+- `GET /api/users/profile` - получить профиль
 - `POST /api/users/purchase-course` - купить курс
 
-## Курсы
-- `GET /api/courses/:id` - информация о курсе
-- `GET /api/courses/:id/access` - проверка доступа
+## 3. Курсы
+- `GET /api/courses/:id` - получить курс (ВСЕ данные с уроками и домашкой)
+- `GET /api/courses/:id/access` - проверка доступа (оплачен ли курс)
 
-## Прогресс
-- `GET /api/courses/:id/progress` - получить прогресс
-- `POST /api/progress` - обновить прогресс
+## 4. Прогресс
+- `GET /api/courses/:id/progress` - получить прогресс курса
+- `POST /api/progress` - обновить прогресс урока
 
-## Домашние задания
-- `POST /api/homework/upload` - загрузить задание
-- `GET /api/homework/:courseId/:lessonId` - получить задание
-- `DELETE /api/homework/:courseId/:lessonId` - удалить задание
+## 5. Домашние задания
+- `POST /api/homework/upload` - загрузить домашку (multipart/form-data)
+- `GET /api/homework/:courseId/:lessonId` - получить домашку
+- `DELETE /api/homework/:id` - удалить домашку
