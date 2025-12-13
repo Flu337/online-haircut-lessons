@@ -595,8 +595,6 @@ const LearningPage = () => {
       navigate("/profile");
       return;
     }
-
-    // Проверяем доступ к курсу
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData) {
       alert('Войдите в систему!');
@@ -614,10 +612,8 @@ const LearningPage = () => {
       return;
     }
 
-    // Загружаем курс
     setCourse(course);
     
-    // Загружаем прогресс
     const progressKey = `course_progress_${userData.username}_${courseId}`;
     const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
     setProgress(savedProgress);
@@ -657,23 +653,19 @@ const LearningPage = () => {
     
     setProgress(newProgress);
     
-    // Сохраняем прогресс в localStorage
     const progressKey = `course_progress_${userData.username}_${courseId}`;
     localStorage.setItem(progressKey, JSON.stringify(newProgress));
     
-    // Обновляем статус курса в профиле
     const userCoursesKey = `courses_${userData.username}`;
     const savedCourses = JSON.parse(localStorage.getItem(userCoursesKey)) || [];
     
     if (savedCourses.length > 0) {
-      // Подсчитываем прогресс
       const completedLessons = Object.values(newProgress).filter(lesson => lesson.completed).length;
       const totalLessons = course.totalLessons;
       
       const courseProgress = Math.round((completedLessons / totalLessons) * 100);
       const isCourseCompleted = courseProgress === 100;
       
-      // Обновляем курс
       const updatedCourses = savedCourses.map(c => {
         if (c.id == courseId) {
           return {
@@ -685,10 +677,8 @@ const LearningPage = () => {
         return c;
       });
       
-      // Сохраняем обновленные курсы
       localStorage.setItem(userCoursesKey, JSON.stringify(updatedCourses));
       
-      // Если курс завершен, создаем сертификат
       if (isCourseCompleted) {
         const certificate = {
           id: Date.now(),
@@ -699,17 +689,14 @@ const LearningPage = () => {
           progress: 100
         };
         
-        // Сохраняем сертификат
         const certificatesKey = `certificates_${userData.username}`;
         const savedCertificates = JSON.parse(localStorage.getItem(certificatesKey)) || [];
         
-        // Проверяем, нет ли уже сертификата для этого курса
         if (!savedCertificates.some(c => c.courseId == courseId)) {
           savedCertificates.push(certificate);
           localStorage.setItem(certificatesKey, JSON.stringify(savedCertificates));
         }
-        
-        // Показываем сообщение о завершении курса
+
         if (getNextLesson() === null) {
           setTimeout(() => {
             alert('🎉 Поздравляем! Вы успешно завершили курс! Сертификат добавлен в ваш профиль.');
@@ -741,14 +728,12 @@ const LearningPage = () => {
     setUploadProgress(0);
     setIsUploading(false);
     
-    // Устанавливаем URL видео из Rutube
     if (lesson.videoId) {
       setCurrentVideoUrl(`https://rutube.ru/play/embed/${lesson.videoId}`);
     } else {
       setCurrentVideoUrl(null);
     }
     
-    // Загружаем домашнее задание
     loadHomework(lesson.id);
   };
 
@@ -809,14 +794,12 @@ const LearningPage = () => {
       setUploadProgress(0);
       setIsUploading(false);
       
-      // Устанавливаем URL видео для следующего урока
       if (nextLesson.lesson.videoId) {
         setCurrentVideoUrl(`https://rutube.ru/play/embed/${nextLesson.lesson.videoId}`);
       } else {
         setCurrentVideoUrl(null);
       }
       
-      // Загружаем домашнее задание для следующего урока
       loadHomework(nextLesson.lesson.id);
     } else {
       setShowVideoModal(false);
@@ -861,7 +844,6 @@ const LearningPage = () => {
     setIsUploading(true);
     setUploadProgress(0);
 
-    // Имитация загрузки
     const interval = setInterval(() => {
       setUploadProgress(prev => {
         if (prev >= 100) {
@@ -1182,7 +1164,7 @@ const LearningPage = () => {
                             disabled={!file || isUploading}
                             className="upload-homework-btn"
                           >
-                            {isUploading ? '📤 Загрузка...' : '📤 Загрузить домашнее задание'}
+                            {isUploading ? ' Загрузка...' : ' Загрузить домашнее задание'}
                           </button>
                         </div>
                       ) : (
@@ -1190,8 +1172,8 @@ const LearningPage = () => {
                         <div className="uploaded-homework">
                           <div className="uploaded-header">
                             <h5>
-                              {homeworkStatus === "approved" ? '✅ Задание проверено' : 
-                               homeworkStatus === "rejected" ? '❌ Требуется доработка' : 
+                              {homeworkStatus === "approved" ? ' Задание проверено' : 
+                               homeworkStatus === "rejected" ? ' Требуется доработка' : 
                                '⏳ Ожидает проверки'}
                             </h5>
                             <span className="upload-date">
@@ -1226,13 +1208,13 @@ const LearningPage = () => {
                           
                           <div className="uploaded-actions">
                             <button onClick={viewHomeworkFile} className="view-homework-btn">
-                              📄 Просмотреть файл
+                               Просмотреть файл
                             </button>
                             <button 
                               onClick={deleteHomework}
                               className="delete-homework-btn"
                             >
-                              🗑️ Удалить
+                               Удалить
                             </button>
                             {homeworkStatus === "rejected" && (
                               <button 
@@ -1242,7 +1224,7 @@ const LearningPage = () => {
                                 }}
                                 className="reupload-homework-btn"
                               >
-                                📤 Загрузить исправленную версию
+                                 Загрузить исправленную версию
                               </button>
                             )}
                           </div>

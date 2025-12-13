@@ -1,4 +1,7 @@
 import React, { useEffect, useRef } from "react";
+import floatingImage from "../styles/img/image copy.png";
+import floatingImage2 from "../styles/img/image.png";
+import floatingImage3 from "../styles/img/image copy 2.png";
 
 const Hero = () => {
   const heroRef = useRef(null);
@@ -30,9 +33,15 @@ const Hero = () => {
   return (
     <section className="hero" id="hero">
       {/* Плавающие элементы */}
-      <div className="floating-element floating-1">✂️</div>
-      <div className="floating-element floating-2">💇</div>
-      <div className="floating-element floating-3">🎓</div>
+      <div className="floating-element floating-1">
+        <img src={floatingImage} alt="floating image" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '30px' }} />
+      </div>
+      <div className="floating-element floating-2">
+        <img src={floatingImage2} alt="floating image 2" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '30px' }} />
+      </div>
+      <div className="floating-element floating-3">
+        <img src={floatingImage3} alt="floating image 3" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '30px' }} />
+      </div>
 
       <div className="hero-content">
         <h1>
