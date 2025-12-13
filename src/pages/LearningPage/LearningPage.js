@@ -568,6 +568,147 @@ const courseData = {
   }
 };
 
+
+const apiService = {
+ 
+  async getCourseProgress(username, courseId) {
+    console.log(`📡 API: Получение прогресса для курса ${courseId} пользователя ${username}`);
+    
+ 
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+
+    const progressKey = `course_progress_${username}_${courseId}`;
+    const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
+    
+
+    
+    return savedProgress;
+  },
+
+  async saveLessonProgress(username, courseId, lessonId, progressData) {
+    console.log(` API: Сохранение прогресса урока ${lessonId}`);
+    
+
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    const progressKey = `course_progress_${username}_${courseId}`;
+    const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
+    savedProgress[lessonId] = progressData;
+    localStorage.setItem(progressKey, JSON.stringify(savedProgress));
+    
+
+    
+    return { success: true, message: "Прогресс сохранен" };
+  },
+
+  async uploadHomework(username, courseId, lessonId, homeworkData) {
+    console.log(`📡 API: Загрузка домашнего задания для урока ${lessonId}`);
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const homeworkKey = `homework_${username}_${courseId}_${lessonId}`;
+    localStorage.setItem(homeworkKey, JSON.stringify(homeworkData));
+    
+
+    
+    return { 
+      success: true, 
+      message: "Домашнее задание загружено", 
+      homeworkId: Date.now(),
+      fileUrl: "https://api.example.com/files/" + homeworkData.fileName 
+    };
+  },
+
+  async getHomework(username, courseId, lessonId) {
+    console.log(`📡 API: Получение домашнего задания урока ${lessonId}`);
+    
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const homeworkKey = `homework_${username}_${courseId}_${lessonId}`;
+    const savedHomework = JSON.parse(localStorage.getItem(homeworkKey));
+    
+
+    
+    return savedHomework;
+  },
+
+  async deleteHomework(username, courseId, lessonId) {
+    console.log(`📡 API: Удаление домашнего задания урока ${lessonId}`);
+    
+
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+
+    const homeworkKey = `homework_${username}_${courseId}_${lessonId}`;
+    localStorage.removeItem(homeworkKey);
+    
+
+    
+    return { success: true, message: "Домашнее задание удалено" };
+  },
+
+
+  async getCourse(courseId) {
+    console.log(`📡 API: Получение информации о курсе ${courseId}`);
+    
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+
+    const course = courseData[courseId];
+    
+
+    
+    return course;
+  },
+  async updateUserCourseProgress(username, courseId, progress, isCompleted) {
+    console.log(`📡 API: Обновление прогресса курса ${courseId}`);
+
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    const userCoursesKey = `courses_${username}`;
+    const savedCourses = JSON.parse(localStorage.getItem(userCoursesKey)) || [];
+    
+    const updatedCourses = savedCourses.map(c => {
+      if (c.id == courseId) {
+        return {
+          ...c,
+          progress,
+          completed: isCompleted
+        };
+      }
+      return c;
+    });
+    
+    localStorage.setItem(userCoursesKey, JSON.stringify(updatedCourses));
+
+    
+    return { success: true };
+  },
+
+  async createCertificate(username, certificateData) {
+    console.log(`📡 API: Создание сертификата для курса ${certificateData.courseId}`);
+    
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const certificatesKey = `certificates_${username}`;
+    const savedCertificates = JSON.parse(localStorage.getItem(certificatesKey)) || [];
+
+    if (!savedCertificates.some(c => c.courseId == certificateData.courseId)) {
+      savedCertificates.push(certificateData);
+      localStorage.setItem(certificatesKey, JSON.stringify(savedCertificates));
+    }
+
+    
+    return { 
+      success: true, 
+      certificateId: certificateData.id,
+      downloadUrl: `https://api.example.com/certificates/${certificateData.id}`
+    };
+  }
+};
+
 const LearningPage = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -585,41 +726,59 @@ const LearningPage = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [homeworkStatus, setHomeworkStatus] = useState("not_started");
   const [uploadedHomework, setUploadedHomework] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
 
   const [currentVideoUrl, setCurrentVideoUrl] = useState(null);
   
   useEffect(() => {
-    const course = courseData[courseId];
-    if (!course) {
-      alert('Курс не найден!');
-      navigate("/profile");
-      return;
-    }
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    if (!userData) {
-      alert('Войдите в систему!');
-      navigate("/");
-      return;
-    }
+    const loadCourse = async () => {
+      setIsLoading(true);
+      setApiError(null);
+      
+      try {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (!userData) {
+          alert('Войдите в систему!');
+          navigate("/");
+          return;
+        }
 
-    const userCoursesKey = `courses_${userData.username}`;
-    const savedCourses = JSON.parse(localStorage.getItem(userCoursesKey)) || [];
-    const currentCourse = savedCourses.find(c => c.id === parseInt(courseId));
-    
-    if (!currentCourse || !currentCourse.paid) {
-      alert('Сначала оплатите курс!');
-      navigate("/profile");
-      return;
-    }
+        const userCoursesKey = `courses_${userData.username}`;
+        const savedCourses = JSON.parse(localStorage.getItem(userCoursesKey)) || [];
+        const currentCourse = savedCourses.find(c => c.id === parseInt(courseId));
+        
+        if (!currentCourse || !currentCourse.paid) {
+          alert('Сначала оплатите курс!');
+          navigate("/profile");
+          return;
+        }
 
-    setCourse(course);
+
+        const courseData = await apiService.getCourse(courseId);
+        if (!courseData) {
+          alert('Курс не найден!');
+          navigate("/profile");
+          return;
+        }
+        
+        setCourse(courseData);
+        
+
+        const savedProgress = await apiService.getCourseProgress(userData.username, courseId);
+        setProgress(savedProgress);
+        
+        console.log(' Курс загружен:', courseData.title);
+        console.log(' Прогресс загружен:', savedProgress);
+      } catch (error) {
+        console.error(' Ошибка загрузки курса:', error);
+        setApiError('Ошибка загрузки данных курса. Попробуйте позже.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
     
-    const progressKey = `course_progress_${userData.username}_${courseId}`;
-    const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
-    setProgress(savedProgress);
-    
-    console.log('Курс загружен:', course.title);
-    console.log('Прогресс загружен:', savedProgress);
+    loadCourse();
   }, [courseId, navigate]);
 
   const isLessonAvailable = (moduleId, lessonId, lessonIndex) => {
@@ -638,78 +797,80 @@ const LearningPage = () => {
     return progress[previousLesson.id]?.completed === true;
   };
 
-  const markLessonAsCompleted = (moduleId, lessonId) => {
+  const markLessonAsCompleted = async (moduleId, lessonId) => {
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData) return;
     
-    const newProgress = {
-      ...progress,
-      [lessonId]: {
+    setIsLoading(true);
+    setApiError(null);
+    
+    try {
+      const progressData = {
         completed: true,
         completedAt: new Date().toISOString(),
         watchedTime: 0
-      }
-    };
-    
-    setProgress(newProgress);
-    
-    const progressKey = `course_progress_${userData.username}_${courseId}`;
-    localStorage.setItem(progressKey, JSON.stringify(newProgress));
-    
-    const userCoursesKey = `courses_${userData.username}`;
-    const savedCourses = JSON.parse(localStorage.getItem(userCoursesKey)) || [];
-    
-    if (savedCourses.length > 0) {
-      const completedLessons = Object.values(newProgress).filter(lesson => lesson.completed).length;
-      const totalLessons = course.totalLessons;
+      };
       
-      const courseProgress = Math.round((completedLessons / totalLessons) * 100);
-      const isCourseCompleted = courseProgress === 100;
+      const result = await apiService.saveLessonProgress(
+        userData.username, 
+        courseId, 
+        lessonId, 
+        progressData
+      );
       
-      const updatedCourses = savedCourses.map(c => {
-        if (c.id == courseId) {
-          return {
-            ...c,
-            progress: courseProgress,
-            completed: isCourseCompleted
-          };
-        }
-        return c;
-      });
-      
-      localStorage.setItem(userCoursesKey, JSON.stringify(updatedCourses));
-      
-      if (isCourseCompleted) {
-        const certificate = {
-          id: Date.now(),
-          courseId: courseId,
-          courseTitle: course.title,
-          userName: userData.username,
-          issueDate: new Date().toISOString(),
-          progress: 100
+      if (result.success) {
+        const newProgress = {
+          ...progress,
+          [lessonId]: progressData
         };
         
-        const certificatesKey = `certificates_${userData.username}`;
-        const savedCertificates = JSON.parse(localStorage.getItem(certificatesKey)) || [];
+        setProgress(newProgress);
+        setIsLessonCompleted(true);
         
-        if (!savedCertificates.some(c => c.courseId == courseId)) {
-          savedCertificates.push(certificate);
-          localStorage.setItem(certificatesKey, JSON.stringify(savedCertificates));
+        const completedLessons = Object.values(newProgress).filter(lesson => lesson.completed).length;
+        const totalLessons = course.totalLessons;
+        const courseProgress = Math.round((completedLessons / totalLessons) * 100);
+        const isCourseCompleted = courseProgress === 100;
+        
+        await apiService.updateUserCourseProgress(
+          userData.username, 
+          courseId, 
+          courseProgress, 
+          isCourseCompleted
+        );
+        
+        if (isCourseCompleted) {
+          const certificate = {
+            id: Date.now(),
+            courseId: courseId,
+            courseTitle: course.title,
+            userName: userData.username,
+            issueDate: new Date().toISOString(),
+            progress: 100
+          };
+          
+          await apiService.createCertificate(userData.username, certificate);
+          
+          if (getNextLesson() === null) {
+            setTimeout(() => {
+              alert('🎉 Поздравляем! Вы успешно завершили курс! Сертификат добавлен в ваш профиль.');
+            }, 500);
+          }
         }
-
-        if (getNextLesson() === null) {
-          setTimeout(() => {
-            alert('🎉 Поздравляем! Вы успешно завершили курс! Сертификат добавлен в ваш профиль.');
-          }, 500);
-        }
+        
+        console.log(' Урок отмечен как завершенный:', lessonId);
+      } else {
+        throw new Error('Ошибка сохранения прогресса');
       }
+    } catch (error) {
+      console.error('❌ Ошибка сохранения прогресса:', error);
+      setApiError('Ошибка сохранения прогресса. Попробуйте снова.');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLessonCompleted(true);
-    console.log('Урок отмечен как завершенный:', lessonId);
   };
 
-  const openLesson = (moduleId, lesson) => {
+  const openLesson = async (moduleId, lesson) => {
     const module = course.modules.find(m => m.id === moduleId);
     const lessonIndex = module.lessons.findIndex(l => l.id === lesson.id);
     
@@ -727,6 +888,7 @@ const LearningPage = () => {
     setComment("");
     setUploadProgress(0);
     setIsUploading(false);
+    setApiError(null);
     
     if (lesson.videoId) {
       setCurrentVideoUrl(`https://rutube.ru/play/embed/${lesson.videoId}`);
@@ -734,22 +896,30 @@ const LearningPage = () => {
       setCurrentVideoUrl(null);
     }
     
-    loadHomework(lesson.id);
+    await loadHomework(lesson.id);
   };
 
-  const loadHomework = (lessonId) => {
+  const loadHomework = async (lessonId) => {
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData) return;
     
-    const homeworkKey = `homework_${userData.username}_${courseId}_${lessonId}`;
-    const savedHomework = JSON.parse(localStorage.getItem(homeworkKey));
-    
-    if (savedHomework) {
-      setUploadedHomework(savedHomework);
-      setHomeworkStatus(savedHomework.status || "uploaded");
-    } else {
-      setUploadedHomework(null);
-      setHomeworkStatus("not_started");
+    try {
+
+      const savedHomework = await apiService.getHomework(
+        userData.username, 
+        courseId, 
+        lessonId
+      );
+      
+      if (savedHomework) {
+        setUploadedHomework(savedHomework);
+        setHomeworkStatus(savedHomework.status || "uploaded");
+      } else {
+        setUploadedHomework(null);
+        setHomeworkStatus("not_started");
+      }
+    } catch (error) {
+      console.error('❌ Ошибка загрузки домашнего задания:', error);
     }
   };
 
@@ -793,6 +963,7 @@ const LearningPage = () => {
       setComment("");
       setUploadProgress(0);
       setIsUploading(false);
+      setApiError(null);
       
       if (nextLesson.lesson.videoId) {
         setCurrentVideoUrl(`https://rutube.ru/play/embed/${nextLesson.lesson.videoId}`);
@@ -835,7 +1006,7 @@ const LearningPage = () => {
     setFileName(selectedFile.name);
   };
 
-  const uploadHomework = () => {
+  const uploadHomework = async () => {
     if (!file) {
       alert("Пожалуйста, выберите файл для загрузки");
       return;
@@ -843,82 +1014,135 @@ const LearningPage = () => {
 
     setIsUploading(true);
     setUploadProgress(0);
+    setApiError(null);
 
-    const interval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          
-          const userData = JSON.parse(localStorage.getItem('userData'));
-          if (userData) {
-            const homeworkData = {
-              id: Date.now(),
-              lessonId: selectedLesson.lesson.id,
-              fileName: file.name,
-              fileSize: (file.size / (1024 * 1024)).toFixed(2),
-              comment: comment,
-              uploadedAt: new Date().toISOString(),
-              status: "pending_review"
-            };
+    try {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (!userData) throw new Error('Пользователь не найден');
 
-            const homeworkKey = `homework_${userData.username}_${courseId}_${selectedLesson.lesson.id}`;
-            localStorage.setItem(homeworkKey, JSON.stringify(homeworkData));
+      const homeworkData = {
+        id: Date.now(),
+        lessonId: selectedLesson.lesson.id,
+        fileName: file.name,
+        fileSize: (file.size / (1024 * 1024)).toFixed(2),
+        comment: comment,
+        uploadedAt: new Date().toISOString(),
+        status: "pending_review"
+      };
 
-            setUploadedHomework(homeworkData);
-            setHomeworkStatus("pending_review");
-            setFile(null);
-            setFileName("");
-            setComment("");
-            
-            setTimeout(() => {
-              setIsUploading(false);
-              setUploadProgress(0);
-            }, 1000);
 
-            alert("Домашнее задание успешно загружено!");
+      const interval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(interval);
+            return 90;
           }
-          
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 100);
+          return prev + 10;
+        });
+      }, 100);
+
+
+      const result = await apiService.uploadHomework(
+        userData.username,
+        courseId,
+        selectedLesson.lesson.id,
+        homeworkData
+      );
+
+      clearInterval();
+      setUploadProgress(100);
+
+      if (result.success) {
+        setUploadedHomework({ ...homeworkData, ...result });
+        setHomeworkStatus("pending_review");
+        setFile(null);
+        setFileName("");
+        setComment("");
+        
+        setTimeout(() => {
+          setIsUploading(false);
+          setUploadProgress(0);
+          alert("✅ Домашнее задание успешно загружено!");
+        }, 500);
+      } else {
+        throw new Error('Ошибка загрузки домашнего задания');
+      }
+    } catch (error) {
+      console.error('❌ Ошибка загрузки домашнего задания:', error);
+      setApiError('Ошибка загрузки файла. Попробуйте снова.');
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
   };
 
-  const deleteHomework = () => {
+  const deleteHomework = async () => {
     if (!window.confirm("Вы уверены, что хотите удалить загруженное домашнее задание?")) {
       return;
     }
 
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    if (userData) {
-      const homeworkKey = `homework_${userData.username}_${courseId}_${selectedLesson.lesson.id}`;
-      localStorage.removeItem(homeworkKey);
-      
-      setUploadedHomework(null);
-      setHomeworkStatus("not_started");
-      setFile(null);
-      setFileName("");
-      setComment("");
-      
-      alert("Домашнее задание удалено!");
+    setIsLoading(true);
+    setApiError(null);
+
+    try {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (!userData) throw new Error('Пользователь не найден');
+
+      const result = await apiService.deleteHomework(
+        userData.username,
+        courseId,
+        selectedLesson.lesson.id
+      );
+
+      if (result.success) {
+        setUploadedHomework(null);
+        setHomeworkStatus("not_started");
+        setFile(null);
+        setFileName("");
+        setComment("");
+        
+        alert("✅ Домашнее задание удалено!");
+      } else {
+        throw new Error('Ошибка удаления домашнего задания');
+      }
+    } catch (error) {
+      console.error('❌ Ошибка удаления домашнего задания:', error);
+      setApiError('Ошибка удаления файла. Попробуйте снова.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const viewHomeworkFile = () => {
     if (uploadedHomework?.fileName) {
-      alert(`Файл: ${uploadedHomework.fileName}\nРазмер: ${uploadedHomework.fileSize} MB`);
+      alert(`📄 Файл: ${uploadedHomework.fileName}\n📏 Размер: ${uploadedHomework.fileSize} MB\n📅 Дата загрузки: ${new Date(uploadedHomework.uploadedAt).toLocaleDateString()}`);
     } else {
       alert("Файл не найден");
     }
   };
 
+  if (isLoading && !course) {
+    return (
+      <div className="loading">
+        <div className="spinner"></div>
+        <p>Загрузка курса...</p>
+      </div>
+    );
+  }
+
   if (!course) {
-    return <div className="loading">Загрузка курса...</div>;
+    return <div className="loading">Курс не найден</div>;
   }
 
   return (
     <div className="learning-page">
+      {/* Отображение ошибок API */}
+      {apiError && (
+        <div className="api-error">
+          ⚠️ {apiError}
+          <button onClick={() => setApiError(null)} className="close-error">×</button>
+        </div>
+      )}
+
       {/* Заголовок и прогресс */}
       <div className="learning-header">
         <button onClick={() => navigate("/profile")} className="back-btn">
@@ -993,10 +1217,10 @@ const LearningPage = () => {
                     <div className="lesson-actions">
                       <button 
                         onClick={() => isAvailable && openLesson(module.id, lesson)}
-                        disabled={!isAvailable}
+                        disabled={!isAvailable || isLoading}
                         className={`watch-btn ${!isAvailable ? 'disabled' : ''}`}
                       >
-                        {isCompleted ? 'Повторить' : 'Смотреть'}
+                        {isLoading ? 'Загрузка...' : (isCompleted ? 'Повторить' : 'Смотреть')}
                       </button>
                     </div>
                   </div>
@@ -1042,16 +1266,16 @@ const LearningPage = () => {
                 <div className="action-buttons">
                   <button 
                     onClick={() => markLessonAsCompleted(selectedLesson.moduleId, selectedLesson.lesson.id)}
-                    disabled={isLessonCompleted}
+                    disabled={isLessonCompleted || isLoading}
                     className={`complete-btn ${isLessonCompleted ? 'completed' : ''}`}
                   >
-                    {isLessonCompleted ? ' Просмотрено' : ' Отметить как просмотренное'}
+                    {isLoading ? '⏳ Сохранение...' : (isLessonCompleted ? ' Просмотрено' : ' Отметить как просмотренное')}
                   </button>
                   
                   {getNextLesson() && (
                     <button 
                       onClick={goToNextLesson}
-                      disabled={!isLessonCompleted}
+                      disabled={!isLessonCompleted || isLoading}
                       className={`next-lesson-btn ${!isLessonCompleted ? 'disabled' : ''}`}
                     >
                       Следующий урок →
@@ -1065,6 +1289,7 @@ const LearningPage = () => {
                 <div className="homework-section">
                   <button 
                     onClick={() => setShowHomework(!showHomework)}
+                    disabled={isLoading}
                     className="homework-toggle-btn"
                   >
                     {showHomework ? ' Скрыть домашнее задание' : ' Показать домашнее задание'}
@@ -1108,6 +1333,7 @@ const LearningPage = () => {
                               onChange={handleFileSelect}
                               className="file-input"
                               accept={selectedLesson.lesson.homework.allowedFormats.join(',')}
+                              disabled={isUploading}
                             />
                             <label htmlFor="homework-file" className="file-upload-label">
                               <div className="upload-icon">📎</div>
@@ -1127,6 +1353,7 @@ const LearningPage = () => {
                                     setFile(null);
                                     setFileName("");
                                   }}
+                                  disabled={isUploading}
                                   className="remove-file-btn"
                                 >
                                   ✕
@@ -1146,6 +1373,7 @@ const LearningPage = () => {
                               placeholder="Опишите вашу работу, задайте вопросы преподавателю..."
                               rows="4"
                               className="comment-textarea"
+                              disabled={isUploading}
                             />
                           </div>
                           
@@ -1161,10 +1389,10 @@ const LearningPage = () => {
                           
                           <button 
                             onClick={uploadHomework}
-                            disabled={!file || isUploading}
+                            disabled={!file || isUploading || isLoading}
                             className="upload-homework-btn"
                           >
-                            {isUploading ? ' Загрузка...' : ' Загрузить домашнее задание'}
+                            {isUploading ? ' Загрузка на сервер...' : 'Загрузить домашнее задание'}
                           </button>
                         </div>
                       ) : (
@@ -1199,22 +1427,37 @@ const LearningPage = () => {
                             <div className="detail-item">
                               <span className="detail-label">Статус:</span>
                               <span className={`detail-value status-${uploadedHomework.status || 'uploaded'}`}>
-                                {uploadedHomework.status === "approved" ? "Принято" : 
-                                 uploadedHomework.status === "rejected" ? "Требует доработки" : 
-                                 "Ожидает проверки"}
+                                {uploadedHomework.status === "approved" ? " Принято" : 
+                                 uploadedHomework.status === "rejected" ? " Требует доработки" : 
+                                 "⏳ Ожидает проверки"}
                               </span>
                             </div>
+                            {uploadedHomework.fileUrl && (
+                              <div className="detail-item">
+                                <span className="detail-label">Ссылка:</span>
+                                <span className="detail-value">
+                                  <a href={uploadedHomework.fileUrl} target="_blank" rel="noopener noreferrer">
+                                    Скачать файл
+                                  </a>
+                                </span>
+                              </div>
+                            )}
                           </div>
                           
                           <div className="uploaded-actions">
-                            <button onClick={viewHomeworkFile} className="view-homework-btn">
-                               Просмотреть файл
+                            <button 
+                              onClick={viewHomeworkFile} 
+                              className="view-homework-btn"
+                              disabled={isLoading}
+                            >
+                                Просмотреть файл
                             </button>
                             <button 
                               onClick={deleteHomework}
+                              disabled={isLoading}
                               className="delete-homework-btn"
                             >
-                               Удалить
+                                Удалить
                             </button>
                             {homeworkStatus === "rejected" && (
                               <button 
@@ -1224,7 +1467,7 @@ const LearningPage = () => {
                                 }}
                                 className="reupload-homework-btn"
                               >
-                                 Загрузить исправленную версию
+                                  Загрузить исправленную версию
                               </button>
                             )}
                           </div>

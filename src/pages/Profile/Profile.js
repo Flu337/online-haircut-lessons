@@ -74,12 +74,13 @@ export default function ProfilePage() {
         setUserData(user);
         
         // Загружаем курсы пользователя
-        const userCourses = localStorage.getItem(`courses_${user.username}`);
+        const userCoursesKey = `courses_${user.username}`;
+        const userCourses = localStorage.getItem(userCoursesKey);
+        
         if (userCourses) {
           const parsedCourses = JSON.parse(userCourses);
-          setCourses(parsedCourses);
           
-          // Обновляем статус завершенных курсов
+          // Обновляем прогресс для каждого курса
           const updatedCourses = parsedCourses.map(course => {
             const progress = getCourseProgress(course.id);
             return {
@@ -90,15 +91,14 @@ export default function ProfilePage() {
           });
           
           setCourses(updatedCourses);
-          localStorage.setItem(`courses_${user.username}`, JSON.stringify(updatedCourses));
-          
-          // Загружаем сертификаты
-          loadCertificates(user.username);
         } else {
           setCourses(initialCourses);
         }
+        
+        // Загружаем сертификаты
+        loadCertificates(user.username);
       } catch (error) {
-        console.log('Ошибка загрузки');
+        console.log('Ошибка загрузки пользователя:', error);
         handleLogout();
       }
     }
@@ -124,13 +124,14 @@ export default function ProfilePage() {
       
       // Определяем общее количество уроков для курса
       let totalLessons = 0;
-      if (courseId === 1) totalLessons = 21;
-      else if (courseId === 2) totalLessons = 11;
-      else if (courseId === 3) totalLessons = 8;
+      if (courseId == 1) totalLessons = 21;
+      else if (courseId == 2) totalLessons = 11;
+      else if (courseId == 3) totalLessons = 8;
       
       const progress = Math.round((completedLessons / totalLessons) * 100);
       return isNaN(progress) ? 0 : progress;
     } catch (error) {
+      console.log('Ошибка получения прогресса:', error);
       return 0;
     }
   };
@@ -150,7 +151,7 @@ export default function ProfilePage() {
     const savedCertificates = JSON.parse(localStorage.getItem(certificatesKey)) || [];
     
     // Если нет сертификатов, проверяем завершенные курсы
-    if (savedCertificates.length === 0 && courses.length > 0) {
+    if (savedCertificates.length === 0) {
       const completedCertificates = [];
       
       courses.forEach(course => {
@@ -159,39 +160,24 @@ export default function ProfilePage() {
           const isCompleted = progress === 100;
           
           if (isCompleted) {
-            const certificate = generateCertificate(course.id);
-            if (certificate) {
-              completedCertificates.push(certificate);
-            }
+            const certificate = {
+              id: Date.now(),
+              name: `Сертификат по курсу "${course.title}"`,
+              courseId: course.id,
+              courseTitle: course.title,
+              issueDate: new Date().toISOString(),
+              userName: user,
+              progress: 100
+            };
+            completedCertificates.push(certificate);
           }
         }
       });
       
       setCertificates(completedCertificates);
+      localStorage.setItem(certificatesKey, JSON.stringify(completedCertificates));
     } else {
       setCertificates(savedCertificates);
-    }
-  };
-
-  // Генерация сертификата
-  const generateCertificate = (courseId) => {
-    if (!userData) return null;
-    
-    try {
-      const course = courses.find(c => c.id === courseId);
-      if (!course) return null;
-      
-      return {
-        id: Date.now(),
-        name: `Сертификат по курсу "${course.title}"`,
-        courseId: courseId,
-        courseTitle: course.title,
-        issueDate: new Date().toISOString(),
-        userName: userData.username,
-        progress: 100
-      };
-    } catch (error) {
-      return null;
     }
   };
 
@@ -234,10 +220,11 @@ export default function ProfilePage() {
       localStorage.setItem('userData', JSON.stringify(userData));
       
       // Загружаем курсы
-      const userCourses = localStorage.getItem(`courses_${user.username}`);
+      const userCoursesKey = `courses_${user.username}`;
+      const userCourses = localStorage.getItem(userCoursesKey);
+      
       if (userCourses) {
         const parsedCourses = JSON.parse(userCourses);
-        setCourses(parsedCourses);
         
         // Обновляем прогресс
         const updatedCourses = parsedCourses.map(course => {
@@ -369,10 +356,33 @@ export default function ProfilePage() {
   };
 
   const downloadCertificate = (courseId, courseTitle) => {
-    alert(`Сертификат по курсу "${courseTitle}" скачан!`);
+    try {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (!userData) {
+        alert('Пожалуйста, войдите в систему');
+        return;
+      }
+
+
+      const imageUrl = '/img/image.png'; 
+      
+
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = `Сертификат_${courseTitle}_${userData.username}.png`;
+
+      document.body.appendChild(link);
+      link.click();
+      
+      document.body.removeChild(link);
+      
+      alert(`Сертификат по курсу "${courseTitle}" скачан!`);
+    } catch (error) {
+      console.error('Ошибка при скачивании сертификата:', error);
+      alert('Не удалось скачать сертификат. Пожалуйста, попробуйте еще раз.');
+    }
   };
 
-  // Если не авторизован, показываем форму
   if (!isAuthenticated) {
     return (
       <div className="login-page">
@@ -446,7 +456,6 @@ export default function ProfilePage() {
     );
   }
 
-  // Если авторизован, показываем профиль
   return (
     <div className="profile-page">
       <ProfileHeader userName={userData?.username} />
