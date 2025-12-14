@@ -25,7 +25,7 @@ const CoursesList = ({
             <div className="course-info">
               <h4 className="course-title">{course.title}</h4>
               <div className={`course-status ${isCompleted ? 'status-completed' : course.paid ? 'status-paid' : 'status-unpaid'}`}>
-                {isCompleted ? '✅ Завершен' : course.paid ? '✅ Оплачен' : '⏳ Не оплачен'}
+                {isCompleted ? 'Завершен' : course.paid ? ' Оплачен' : ' Не оплачен'}
               </div>
             </div>
             
@@ -57,7 +57,7 @@ const CoursesList = ({
                       className="download-certificate-btn-profile"
                       onClick={() => onDownloadCertificate(course.id, course.title)}
                     >
-                      📄 Скачать сертификат
+                       Скачать сертификат
                     </button>
                   )}
                 </>
@@ -66,7 +66,7 @@ const CoursesList = ({
                   className="choose-plan-btn"
                   onClick={() => onOpenModal(course.id)}
                 >
-                  💳 Оплатить курс
+                   Оплатить курс
                 </button>
               )}
             </div>

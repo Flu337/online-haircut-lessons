@@ -1,5 +1,5 @@
 import React from "react";
-// Убираем import "./CourseItem.css";
+
 
 const CourseItem = ({ 
   course, 
@@ -39,7 +39,7 @@ const CourseItem = ({
                 onClick={() => onDownloadCertificate(course.id, course.title)}
                 title="Скачать сертификат"
               >
-                📄 Сертификат
+                 Сертификат
               </button>
             )}
           </>

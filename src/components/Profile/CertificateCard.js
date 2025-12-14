@@ -36,10 +36,10 @@ const CertificateCard = ({ certificate, onDownloadCertificate }) => {
       
       <div className="certificate-footer">
         <button 
-          className="download-certificate-btn" // Используем этот класс вместо btn-download
+          className="download-certificate-btn" 
           onClick={() => onDownloadCertificate(certificate.courseId, certificate.courseTitle)}
         >
-          <span>📥</span> Скачать сертификат
+          <span></span> Скачать сертификат
         </button>
       </div>
     </div>
