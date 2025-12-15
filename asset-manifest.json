@@ -1,16 +1,17 @@
 {
   "files": {
-    "main.css": "/online-haircut-lessons/static/css/main.8e1ca7cd.css",
-    "main.js": "/online-haircut-lessons/static/js/main.bf70b601.js",
+    "main.css": "/online-haircut-lessons/static/css/main.f23a5e2e.css",
+    "main.js": "/online-haircut-lessons/static/js/main.ecf2e480.js",
+    "static/media/image copy 3.png": "/online-haircut-lessons/static/media/image copy 3.d2f838728847fa956755.png",
     "static/media/image copy 2.png": "/online-haircut-lessons/static/media/image copy 2.0e3382022d39942d6083.png",
     "static/media/image copy.png": "/online-haircut-lessons/static/media/image copy.3c32a7349ec4789baa64.png",
     "static/media/image.png": "/online-haircut-lessons/static/media/image.0f89d744a4ecedf39705.png",
     "index.html": "/online-haircut-lessons/index.html",
-    "main.8e1ca7cd.css.map": "/online-haircut-lessons/static/css/main.8e1ca7cd.css.map",
-    "main.bf70b601.js.map": "/online-haircut-lessons/static/js/main.bf70b601.js.map"
+    "main.f23a5e2e.css.map": "/online-haircut-lessons/static/css/main.f23a5e2e.css.map",
+    "main.ecf2e480.js.map": "/online-haircut-lessons/static/js/main.ecf2e480.js.map"
   },
   "entrypoints": [
-    "static/css/main.8e1ca7cd.css",
-    "static/js/main.bf70b601.js"
+    "static/css/main.f23a5e2e.css",
+    "static/js/main.ecf2e480.js"
   ]
 }
