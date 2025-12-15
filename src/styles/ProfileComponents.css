@@ -50,8 +50,8 @@
 .profile-header {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
-  padding: var(--space-xl);
+  gap: var(--space-xl);
+  padding: var(--space-xl) var(--space-xl) var(--space-xl) calc(var(--space-xl) + 50px);
   background: var(--bg-secondary);
   border-radius: var(--radius-xl);
   margin-bottom: var(--space-xl);
@@ -60,12 +60,42 @@
 }
 
 .profile-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 100%;
   object-fit: cover;
-  border: 4px solid var(--accent-primary);
+  border: 2px solid var(--accent-primary);
   box-shadow: 0 0 20px rgba(76, 201, 240, 0.3);
+}
+
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
+.change-avatar-btn {
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.change-avatar-btn:hover {
+  background: var(--accent-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(76, 201, 240, 0.4);
 }
 
 .profile-info {
@@ -823,8 +853,8 @@
   }
   
   .profile-avatar {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
   }
   
   .courses-card,

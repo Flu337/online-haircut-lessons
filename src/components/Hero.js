@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import floatingImage from "../styles/img/image copy.png";
 import floatingImage2 from "../styles/img/image.png";
 import floatingImage3 from "../styles/img/image copy 2.png";
+import heroImage from "../styles/img/image copy 3.png";
 
 const Hero = () => {
   const heroRef = useRef(null);
@@ -88,8 +89,7 @@ const Hero = () => {
       </div>
 
       <div className="hero-image">
-        <img
-          src="https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+        <img src={heroImage}
           alt="Парикмахерское искусство"
         />
       </div>
